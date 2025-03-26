@@ -8,10 +8,10 @@ Virtual Currency Exchange is a web application that allows users to convert betw
 - **Recep Enes Karatekin** - 40796  
 - **Eltun Gasimov** - 41160  
 
-### 🏆 Roles  
-- **Eltun Gasimov** – Backend Developer, Database Specialist, QA & Documentation Manager  
-- **Ahmet Artam** – Project Manager, Frontend Developer  
-- **Recep Enes Karatekin** – Frontend Developer  
+### 🏆 Roles
+- **Ahmet Artam** – Frontend Developer 
+- **Recep Enes Karatekin** – Frontend Developer
+- **Eltun Gasimov** – Backend Developer, Database Specialist, QA & Documentation and Project Manager   
 
 ## 🛠 Tech Stack  
 - **Backend:** Python (Django REST Framework)  
