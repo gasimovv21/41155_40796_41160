@@ -17,8 +17,10 @@ Virtual Currency Exchange is a web application that allows users to convert betw
 - **Backend:** Python (Django REST Framework)  
 - **Frontend:** Next.js, React Bootstrap, SCSS  
 - **Database:** PostgreSQL / SQLite3  
+- **Authentication:** JWT (JSON Web Token)  
 - **Version Control:** GitHub  
 - **CI/CD:** Docker  
+- **QA Testing:** Pytest 
 
 ## 🚀 Project Setup  
 Instructions on setting up the project will be added soon.  
