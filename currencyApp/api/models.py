@@ -107,3 +107,14 @@ class AccountHistory(models.Model):
 
     def __str__(self):
         return f"History {self.history_id}: {self.user.username} ({self.currency}, {self.action}, {self.amount})"
+
+
+class DepositHistory(models.Model):
+    deposit_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='deposits')
+    user_currency_account = models.ForeignKey(UserCurrencyAccount, on_delete=models.CASCADE, related_name='deposits')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Deposit {self.deposit_id} by {self.user.username} to {self.user_currency_account.currency_code} account"
