@@ -90,3 +90,20 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"Transaction {self.transaction_id}: {self.user.username} ({self.from_currency} to {self.to_currency}, {self.amount})"
+
+
+class AccountHistory(models.Model):
+    ACTION_CHOICES = [
+        ('income', 'Income'),
+        ('expense', 'Expense'),
+    ]
+
+    history_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='account_histories')
+    currency = models.CharField(max_length=3)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    action = models.CharField(max_length=8, choices=ACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"History {self.history_id}: {self.user.username} ({self.currency}, {self.action}, {self.amount})"
