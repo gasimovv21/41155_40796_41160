@@ -8,7 +8,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ('username', 'password', 'first_name', 'last_name', 'phone_number', 'email')
 
     def create(self, validated_data):
-        validated_data['password'] = make_password(validated_data['password'])  # Хешируем пароль
+        validated_data['password'] = make_password(validated_data['password'])
         return super().create(validated_data)
 
 class UserLoginSerializer(serializers.Serializer):
