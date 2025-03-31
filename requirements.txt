@@ -15,7 +15,9 @@ inflection==0.5.1
 jsonschema==4.23.0
 jsonschema-specifications==2024.10.1
 packaging==24.2
+psycopg2-binary==2.9.7
 PyJWT==2.9.0
+python-dotenv==1.1.0
 pytz==2024.2
 PyYAML==6.0.2
 referencing==0.35.1
@@ -27,4 +29,3 @@ typing_extensions==4.12.2
 tzdata==2024.2
 uritemplate==4.1.1
 urllib3==2.2.3
-psycopg2-binary==2.9.7

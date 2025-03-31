@@ -1,12 +1,17 @@
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-6e#%4ro*@vqs(*v)jt+4kcdo76!cq)7qv3!2fez4i162i$u#=7'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = '*'
 
 
 INSTALLED_APPS = [
@@ -85,6 +90,7 @@ REST_FRAMEWORK = {
     )
 }
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 LANGUAGE_CODE = 'en-us'
 
@@ -97,6 +103,5 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 AUTH_USER_MODEL = 'api.User'
