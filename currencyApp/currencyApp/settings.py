@@ -8,7 +8,7 @@ SECRET_KEY = 'django-insecure-6e#%4ro*@vqs(*v)jt+4kcdo76!cq)7qv3!2fez4i162i$u#=7
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['gasimovv21.pythonanywhere.com']
+ALLOWED_HOSTS = ['gasimovv21.pythonanywhere.com', '*']
 
 CORS_ALLOW_ALL_ORIGINS = True
 

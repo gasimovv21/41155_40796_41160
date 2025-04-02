@@ -35,11 +35,14 @@ class LoginView(APIView):
                 if check_password(serializer.validated_data['password'], user.password):
                     user.last_login = now()
                     user.save(update_fields=["last_login"])
-                    
+
                     tokens = get_tokens_for_user(user)
                     return Response({
-                        "message": "Login successful",
-                        "tokens": tokens
+                        "accessToken": tokens["access"],
+                        "refreshToken": tokens["refresh"],
+                        "user_id": user.id,
+                        "first_name": user.first_name,
+                        "last_name": user.last_name
                     }, status=status.HTTP_200_OK)
                 else:
                     return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
