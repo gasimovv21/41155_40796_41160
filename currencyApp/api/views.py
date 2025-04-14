@@ -51,11 +51,11 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CheckJWTView(APIView):
-    permission_classes = [IsAuthenticated]
+# class CheckJWTView(APIView):
+#     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
-        serializer = UserRegistrationSerializer(user)
-        return Response({"message": "✅ You are authenticated!", "user": serializer.data})
+#     def get(self, request):
+#         user = request.user
+#         serializer = UserRegistrationSerializer(user)
+#         return Response({"message": "✅ You are authenticated!", "user": serializer.data})
 
