@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
@@ -76,6 +76,7 @@ class LoginView(APIView):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def getCurrencyAccountsView(request):
     if request.method == 'GET':
         return getCurrencyAccounts(request)
@@ -84,6 +85,7 @@ def getCurrencyAccountsView(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
 def getCurrencyAccountView(request, pk):
     if request.method == 'GET':
         return getCurrencyAccountDetail(request, pk)
@@ -94,11 +96,13 @@ def getCurrencyAccountView(request, pk):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def getUserCurrencyAccountsView(request, user_id):
     return getUserCurrencyAccounts(request, user_id)
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def convertCurrency(request, user_id):
     if request.method == 'GET':
         transactions = Transaction.objects.filter(user_id=user_id)
@@ -127,6 +131,7 @@ def convertCurrency(request, user_id):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def depositToAccount(request, user_id):
     if request.method == 'GET':
         currency_code = request.GET.get('currency_code')
@@ -161,6 +166,7 @@ def depositToAccount(request, user_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def getAccountHistory(request, user_id):
     histories = AccountHistory.objects.filter(user_id=user_id).order_by('-created_at')
     serializer = AccountHistorySerializer(histories, many=True)
