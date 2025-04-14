@@ -79,3 +79,94 @@ def getUserCurrencyAccounts(request, user_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+def get_exchange_rate(currency_code, rate_type):
+    url = f"https://api.nbp.pl/api/exchangerates/rates/c/{currency_code}/?format=json"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        rate = data['rates'][0][rate_type]
+        return Decimal(rate)
+    except requests.exceptions.RequestException as e:
+        return Response({"error": f"Failed to fetch exchange rate: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except KeyError:
+        return Response({"error": f"Invalid response format from NBP API."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def convert_currency(user, from_currency, to_currency, amount):
+    try:
+        from_account = UserCurrencyAccount.objects.get(user=user, currency_code=from_currency)
+        to_account = UserCurrencyAccount.objects.get(user=user, currency_code=to_currency)
+    except UserCurrencyAccount.DoesNotExist:
+        return Response({"error": "One or both currency accounts do not exist for this user."}, status=status.HTTP_400_BAD_REQUEST)
+
+    amount = Decimal(amount)
+
+    with db_transaction.atomic():
+        if from_currency == 'PLN':
+            rate = get_exchange_rate(to_currency, 'ask')
+            if isinstance(rate, Response):
+                return rate
+
+            if from_account.balance < amount * rate:
+                return Response({"error": "Insufficient balance in PLN account."}, status=status.HTTP_400_BAD_REQUEST)
+
+            from_account.balance -= amount * rate
+            from_account.save()
+
+            to_account.balance += amount
+            to_account.save()
+
+            AccountHistory.objects.create(user=user, currency=from_currency, amount=amount * rate, action='expense')
+            AccountHistory.objects.create(user=user, currency=to_currency, amount=amount, action='income')
+        else:
+            rate = get_exchange_rate(from_currency, 'bid')
+            if isinstance(rate, Response):
+                return rate
+
+            if from_account.balance < amount:
+                return Response({"error": f"Insufficient balance in {from_currency} account."}, status=status.HTTP_400_BAD_REQUEST)
+
+            from_account.balance -= amount
+            from_account.save()
+
+            to_account.balance += amount * rate
+            to_account.save()
+
+            AccountHistory.objects.create(user=user, currency=from_currency, amount=amount, action='expense')
+            AccountHistory.objects.create(user=user, currency=to_currency, amount=amount * rate, action='income')
+
+        transaction = Transaction.objects.create(
+            user=user,
+            from_currency=from_currency,
+            to_currency=to_currency,
+            amount=amount
+        )
+
+    return Response({"message": "Conversion successful.", "transaction_id": transaction.transaction_id}, status=status.HTTP_201_CREATED)
+
+
+def deposit_to_account(user, user_currency_account_code, amount):
+    try:
+        account = UserCurrencyAccount.objects.get(currency_code=user_currency_account_code, user=user)
+    except UserCurrencyAccount.DoesNotExist:
+        return Response({"error": f"Account with currency {user_currency_account_code} not found for this user."}, status=status.HTTP_404_NOT_FOUND)
+
+    amount = Decimal(amount)
+
+    if amount <= 0:
+        return Response({"error": "Deposit amount must be greater than zero."}, status=status.HTTP_400_BAD_REQUEST)
+
+    with db_transaction.atomic():
+        account.balance += amount
+        account.save()
+
+        deposit = DepositHistory.objects.create(
+            user=user,
+            user_currency_account=account,
+            amount=amount
+        )
+
+    return Response({"message": "Deposit successful.", "deposit_id": deposit.deposit_id}, status=status.HTTP_201_CREATED)
