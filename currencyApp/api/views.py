@@ -6,8 +6,14 @@ from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from django.conf import settings
 from django.utils.timezone import now
-from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, Transaction, DepositHistory, AccountHistory
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+
+
 from .serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
@@ -171,3 +177,53 @@ def getAccountHistory(request, user_id):
     histories = AccountHistory.objects.filter(user_id=user_id).order_by('-created_at')
     serializer = AccountHistorySerializer(histories, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    try:
+        refresh_token = request.data.get("refresh")
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        return Response({"message": "Logout successful."}, status=200)
+    except TokenError:
+        return Response({"error": "Invalid or expired refresh token."}, status=400)
+
+
+@api_view(['POST'])
+def forgot_password(request):
+    email = request.data.get('email')
+    try:
+        user = User.objects.get(email=email)
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        reset_link = f"https://gasimovv21.pythonanywhere.com/api/reset-password/{uid}/{token}/" # in local < -- http://localhost:8000/api/reset-password/{uid}/{token}/"
+
+        send_mail(
+            'Reset your password',
+            f'Click the link to reset your password: {reset_link}',
+            'no-reply@currencyapp.com',
+            [user.email],
+            fail_silently=False,
+        )
+        return Response({"message": "Password reset link sent to email."})
+    except User.DoesNotExist:
+        return Response({"error": "User with this email does not exist."}, status=404)
+
+
+@api_view(['POST'])
+def reset_password(request, uidb64, token):
+    password = request.data.get('password')
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+
+        if default_token_generator.check_token(user, token):
+            user.set_password(password)
+            user.save()
+            return Response({"message": "Password reset successful."})
+        else:
+            return Response({"error": "Invalid or expired token."}, status=400)
+    except Exception:
+        return Response({"error": "Something went wrong."}, status=400)
