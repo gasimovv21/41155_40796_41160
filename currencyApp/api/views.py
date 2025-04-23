@@ -185,8 +185,12 @@ def logout_view(request):
     try:
         refresh_token = request.data.get("refresh")
         token = RefreshToken(refresh_token)
+
+        if token.payload['user_id'] != request.user.id:
+            return Response({"error": "Token does not belong to the authenticated user."}, status=403)
+
         token.blacklist()
-        return Response({"message": "Logout successful."}, status=200)
+        return Response({"message": "Logout successful."})
     except TokenError:
         return Response({"error": "Invalid or expired refresh token."}, status=400)
 
