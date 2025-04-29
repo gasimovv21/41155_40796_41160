@@ -8,9 +8,7 @@ from django.conf import settings
 from django.utils.timezone import now
 from .models import User, Transaction, DepositHistory, AccountHistory
 from django.core.mail import send_mail
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from django.contrib.auth.hashers import make_password
 
@@ -44,6 +42,7 @@ def get_tokens_for_user(user):
     }
 
 
+@extend_schema(request=UserRegistrationSerializer, responses={201: OpenApiResponse(description="User registered successfully")})
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
@@ -53,6 +52,7 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(request=UserLoginSerializer, responses={200: OpenApiResponse(description="User logged in successfully")})
 class LoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
@@ -78,21 +78,17 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class CheckJWTView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         user = request.user
-#         serializer = UserRegistrationSerializer(user)
-#         return Response({"message": "✅ You are authenticated!", "user": serializer.data})
-
-
+@extend_schema(responses={200: UserRegistrationSerializer(many=True)})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getUsers(request):
     return getUsersList(request)
 
 
+@extend_schema(
+    request=UserRegistrationSerializer,
+    responses={200: UserRegistrationSerializer}
+)
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def getUser(request, pk):
@@ -102,6 +98,10 @@ def getUser(request, pk):
         return updateUser(request, pk)
 
 
+@extend_schema(
+    request=TransactionSerializer,
+    responses={200: TransactionSerializer(many=True)}
+)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def getCurrencyAccountsView(request):
@@ -111,6 +111,10 @@ def getCurrencyAccountsView(request):
         return createCurrencyAccount(request)
 
 
+@extend_schema(
+    request=TransactionSerializer,
+    responses={200: TransactionSerializer}
+)
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def getCurrencyAccountView(request, pk):
@@ -122,12 +126,19 @@ def getCurrencyAccountView(request, pk):
         return deleteCurrencyAccount(request, pk)
 
 
+@extend_schema(
+    responses={200: TransactionSerializer(many=True)}
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getUserCurrencyAccountsView(request, user_id):
     return getUserCurrencyAccounts(request, user_id)
 
 
+@extend_schema(
+    request=ConvertRequestSerializer,
+    responses={200: TransactionSerializer(many=True)}
+)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def convertCurrency(request, user_id):
@@ -155,6 +166,10 @@ def convertCurrency(request, user_id):
         )
 
 
+@extend_schema(
+    request=DepositRequestSerializer,
+    responses={200: DepositHistorySerializer(many=True)}
+)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def depositToAccount(request, user_id):
@@ -188,6 +203,9 @@ def depositToAccount(request, user_id):
         )
 
 
+@extend_schema(
+    responses={200: AccountHistorySerializer(many=True)}
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getAccountHistory(request, user_id):
@@ -196,6 +214,10 @@ def getAccountHistory(request, user_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    request=None,
+    responses={200: OpenApiResponse(description="Logout successful")}
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
@@ -212,6 +234,10 @@ def logout_view(request):
         return Response({"error": "Invalid or expired refresh token."}, status=400)
 
 
+@extend_schema(
+    request=ForgotPasswordRequestSerializer,
+    responses={200: OpenApiResponse(description="Temporary password sent")},
+)
 @api_view(['POST'])
 def forgot_password(request):
     serializer = ForgotPasswordRequestSerializer(data=request.data)
