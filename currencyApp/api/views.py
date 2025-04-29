@@ -12,6 +12,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from django.contrib.auth.hashers import make_password
 
 
 from .serializers import (
@@ -21,9 +22,11 @@ from .serializers import (
     ConvertRequestSerializer,
     DepositRequestSerializer,
     DepositHistorySerializer,
-    AccountHistorySerializer
+    AccountHistorySerializer,
+    ForgotPasswordRequestSerializer
 )
 from .utils import (
+    generate_temporary_password,
     getUsersList, getUserDetail, updateUser,
     getCurrencyAccounts, createCurrencyAccount, getCurrencyAccountDetail,
     updateCurrencyAccount, deleteCurrencyAccount, getUserCurrencyAccounts,
@@ -211,37 +214,30 @@ def logout_view(request):
 
 @api_view(['POST'])
 def forgot_password(request):
-    email = request.data.get('email')
+    serializer = ForgotPasswordRequestSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    email = serializer.validated_data['email']
     try:
         user = User.objects.get(email=email)
-        token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        reset_link = f"https://gasimovv21.pythonanywhere.com/api/reset-password/{uid}/{token}/" # in local < -- http://localhost:8000/api/reset-password/{uid}/{token}/"
+
+        temp_password = generate_temporary_password()
+
+        user.password = make_password(temp_password)
+        user.save()
 
         send_mail(
-            'Reset your password',
-            f'Click the link to reset your password: {reset_link}',
-            'no-reply@currencyapp.com',
+            'Your Temporary Password',
+            f'Hello,\n\n'
+            f'This is your temporary password to access your account: {temp_password}\n\n'
+            f'Please change it in your profile settings after logging in.\n'
+            f'If you experience any issues, do not hesitate to contact our support team.',
+            'gasimoweltun@gmail.com',
             [user.email],
             fail_silently=False,
         )
-        return Response({"message": "Password reset link sent to email."})
+
+        return Response({"message": "Temporary password sent to your email."})
     except User.DoesNotExist:
-        return Response({"error": "User with this email does not exist."}, status=404)
-
-
-@api_view(['POST'])
-def reset_password(request, uidb64, token):
-    password = request.data.get('password')
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-
-        if default_token_generator.check_token(user, token):
-            user.set_password(password)
-            user.save()
-            return Response({"message": "Password reset successful."})
-        else:
-            return Response({"error": "Invalid or expired token."}, status=400)
-    except Exception:
-        return Response({"error": "Something went wrong."}, status=400)
+        return Response({"error": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)

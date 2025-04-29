@@ -1,4 +1,6 @@
 import requests
+import random
+import string
 
 
 from django.db import IntegrityError
@@ -11,6 +13,11 @@ from .serializers import UserCurrencyAccountSerializer, UserRegistrationSerializ
 from django.db import transaction as db_transaction
 from decimal import Decimal
 from django.contrib.auth.hashers import make_password
+
+
+def generate_temporary_password(length=14):
+    chars = string.ascii_letters + string.digits + "-_"
+    return ''.join(random.choice(chars) for _ in range(length))
 
 
 def getUsersList(request):
