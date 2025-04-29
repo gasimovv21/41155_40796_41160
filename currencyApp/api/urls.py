@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import (
+    getUsers, getUser,
     RegisterView, LoginView, logout_view, forgot_password, reset_password,
     getCurrencyAccountsView, getCurrencyAccountView,
     getUserCurrencyAccountsView, convertCurrency,
@@ -13,6 +14,8 @@ urlpatterns = [
     path('forgot-password/', forgot_password, name='forgot-password'),
     path('reset-password/<str:uidb64>/<str:token>/', reset_password, name='reset-password'),
 
+    path('users/', getUsers, name='user-list'),
+    path('users/<int:pk>/', getUser, name='user-detail'),
     path('currency-accounts/', getCurrencyAccountsView, name='currency-account-list'),
     path('currency-accounts/<int:pk>/', getCurrencyAccountView, name='currency-account-detail'),
     path('currency-accounts/user/<int:user_id>/', getUserCurrencyAccountsView, name='user-currency-accounts'),

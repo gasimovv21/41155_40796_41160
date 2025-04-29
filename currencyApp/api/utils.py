@@ -7,10 +7,43 @@ from rest_framework import status
 from .models import (
     User, UserCurrencyAccount, Transaction, AccountHistory,
     DepositHistory)
-from .serializers import UserCurrencyAccountSerializer
+from .serializers import UserCurrencyAccountSerializer, UserRegistrationSerializer
 from django.db import transaction as db_transaction
 from decimal import Decimal
 from django.contrib.auth.hashers import make_password
+
+
+def getUsersList(request):
+    users = User.objects.all()
+    serializer = UserRegistrationSerializer(users, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+def getUserDetail(request, pk):
+    try:
+        user = User.objects.get(pk=pk)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = UserRegistrationSerializer(user)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+def updateUser(request, pk):
+    try:
+        user = User.objects.get(pk=pk)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    data = request.data
+    if "password" in data:
+        data["password"] = make_password(data["password"])
+
+    serializer = UserRegistrationSerializer(user, data=data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def getCurrencyAccounts(request):

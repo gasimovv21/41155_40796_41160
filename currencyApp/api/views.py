@@ -18,10 +18,13 @@ from .serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
     TransactionSerializer,
+    ConvertRequestSerializer,
+    DepositRequestSerializer,
     DepositHistorySerializer,
     AccountHistorySerializer
 )
 from .utils import (
+    getUsersList, getUserDetail, updateUser,
     getCurrencyAccounts, createCurrencyAccount, getCurrencyAccountDetail,
     updateCurrencyAccount, deleteCurrencyAccount, getUserCurrencyAccounts,
     convert_currency, deposit_to_account
@@ -81,6 +84,21 @@ class LoginView(APIView):
 #         return Response({"message": "✅ You are authenticated!", "user": serializer.data})
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getUsers(request):
+    return getUsersList(request)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def getUser(request, pk):
+    if request.method == 'GET':
+        return getUserDetail(request, pk)
+    elif request.method == 'PUT':
+        return updateUser(request, pk)
+
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def getCurrencyAccountsView(request):
@@ -121,19 +139,17 @@ def convertCurrency(request, user_id):
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        from_currency = request.data.get('from_currency')
-        to_currency = request.data.get('to_currency')
-        amount = request.data.get('amount')
+        serializer = ConvertRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if not all([from_currency, to_currency, amount]):
-            return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            amount = float(amount)
-        except ValueError:
-            return Response({"error": "Invalid amount"}, status=status.HTTP_400_BAD_REQUEST)
-
-        return convert_currency(user, from_currency, to_currency, amount)
+        validated_data = serializer.validated_data
+        return convert_currency(
+            user,
+            validated_data['from_currency'],
+            validated_data['to_currency'],
+            validated_data['amount']
+        )
 
 
 @api_view(['GET', 'POST'])
@@ -151,24 +167,22 @@ def depositToAccount(request, user_id):
         serializer = DepositHistorySerializer(deposits, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    if request.method == 'POST':
+    elif request.method == 'POST':
         try:
             user = User.objects.get(pk=user_id)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        user_currency_account_code = request.data.get('user_currency_account_code')
-        amount = request.data.get('amount')
+        serializer = DepositRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if not all([user_currency_account_code, amount]):
-            return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            amount = float(amount)
-        except ValueError:
-            return Response({"error": "Invalid amount"}, status=status.HTTP_400_BAD_REQUEST)
-
-        return deposit_to_account(user, user_currency_account_code, amount)
+        validated_data = serializer.validated_data
+        return deposit_to_account(
+            user,
+            validated_data['user_currency_account_code'],
+            validated_data['amount']
+        )
 
 
 @api_view(['GET'])
