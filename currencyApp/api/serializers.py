@@ -46,6 +46,17 @@ class TransactionSerializer(serializers.ModelSerializer):
         return obj.created_at.strftime('%d-%m-%Y %H:%M:%S')
 
 
+class ConvertRequestSerializer(serializers.Serializer):
+    from_currency = serializers.CharField(required=True, max_length=3)
+    to_currency = serializers.CharField(required=True, max_length=3)
+    amount = serializers.FloatField(required=True, min_value=0.01)
+
+
+class DepositRequestSerializer(serializers.Serializer):
+    user_currency_account_code = serializers.CharField(required=True)
+    amount = serializers.FloatField(required=True, min_value=0.01)
+
+
 class DepositHistorySerializer(serializers.ModelSerializer):
     currency_code = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
