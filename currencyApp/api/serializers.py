@@ -87,3 +87,7 @@ class AccountHistorySerializer(serializers.ModelSerializer):
 
     def get_created_at(self, obj):
         return obj.created_at.strftime('%d-%m-%Y %H:%M:%S')
+
+
+class ForgotPasswordRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
