@@ -21,7 +21,8 @@ from .serializers import (
     DepositRequestSerializer,
     DepositHistorySerializer,
     AccountHistorySerializer,
-    ForgotPasswordRequestSerializer
+    ForgotPasswordRequestSerializer,
+    UserCurrencyAccountSerializer
 )
 from .utils import (
     generate_temporary_password,
@@ -78,7 +79,6 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@extend_schema(responses={200: UserRegistrationSerializer(many=True)})
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getUsers(request):
@@ -99,8 +99,8 @@ def getUser(request, pk):
 
 
 @extend_schema(
-    request=TransactionSerializer,
-    responses={200: TransactionSerializer(many=True)}
+    request=UserCurrencyAccountSerializer,
+    responses={200: UserCurrencyAccountSerializer(many=True)}
 )
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -112,8 +112,8 @@ def getCurrencyAccountsView(request):
 
 
 @extend_schema(
-    request=TransactionSerializer,
-    responses={200: TransactionSerializer}
+    request=UserCurrencyAccountSerializer,
+    responses={200: UserCurrencyAccountSerializer, 204: OpenApiResponse(description="Currency account deleted")}
 )
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
@@ -126,9 +126,6 @@ def getCurrencyAccountView(request, pk):
         return deleteCurrencyAccount(request, pk)
 
 
-@extend_schema(
-    responses={200: TransactionSerializer(many=True)}
-)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getUserCurrencyAccountsView(request, user_id):
@@ -136,7 +133,7 @@ def getUserCurrencyAccountsView(request, user_id):
 
 
 @extend_schema(
-    request=ConvertRequestSerializer,
+    request=TransactionSerializer,
     responses={200: TransactionSerializer(many=True)}
 )
 @api_view(['GET', 'POST'])
@@ -167,7 +164,7 @@ def convertCurrency(request, user_id):
 
 
 @extend_schema(
-    request=DepositRequestSerializer,
+    request=DepositHistorySerializer,
     responses={200: DepositHistorySerializer(many=True)}
 )
 @api_view(['GET', 'POST'])
@@ -203,9 +200,6 @@ def depositToAccount(request, user_id):
         )
 
 
-@extend_schema(
-    responses={200: AccountHistorySerializer(many=True)}
-)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getAccountHistory(request, user_id):
