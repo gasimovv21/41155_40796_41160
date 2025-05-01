@@ -150,17 +150,20 @@ def convert_currency(user, from_currency, to_currency, amount):
             if isinstance(rate, Response):
                 return rate
 
-            if from_account.balance < amount * rate:
+            if from_account.balance < amount:
                 return Response({"error": "Insufficient balance in PLN account."}, status=status.HTTP_400_BAD_REQUEST)
 
-            from_account.balance -= amount * rate
+            received_amount = amount / rate
+
+            from_account.balance -= amount
             from_account.save()
 
-            to_account.balance += amount
+            to_account.balance += received_amount
             to_account.save()
 
-            AccountHistory.objects.create(user=user, currency=from_currency, amount=amount * rate, action='expense')
-            AccountHistory.objects.create(user=user, currency=to_currency, amount=amount, action='income')
+            AccountHistory.objects.create(user=user, currency=from_currency, amount=amount, action='expense')
+            AccountHistory.objects.create(user=user, currency=to_currency, amount=received_amount, action='income')
+
         else:
             rate = get_exchange_rate(from_currency, 'bid')
             if isinstance(rate, Response):
@@ -169,14 +172,16 @@ def convert_currency(user, from_currency, to_currency, amount):
             if from_account.balance < amount:
                 return Response({"error": f"Insufficient balance in {from_currency} account."}, status=status.HTTP_400_BAD_REQUEST)
 
+            received_amount = amount * rate
+
             from_account.balance -= amount
             from_account.save()
 
-            to_account.balance += amount * rate
+            to_account.balance += received_amount
             to_account.save()
 
             AccountHistory.objects.create(user=user, currency=from_currency, amount=amount, action='expense')
-            AccountHistory.objects.create(user=user, currency=to_currency, amount=amount * rate, action='income')
+            AccountHistory.objects.create(user=user, currency=to_currency, amount=received_amount, action='income')
 
         transaction = Transaction.objects.create(
             user=user,
@@ -185,7 +190,11 @@ def convert_currency(user, from_currency, to_currency, amount):
             amount=amount
         )
 
-    return Response({"message": "Conversion successful.", "transaction_id": transaction.transaction_id}, status=status.HTTP_201_CREATED)
+    return Response({
+        "message": "Conversion successful.",
+        "transaction_id": transaction.transaction_id
+    }, status=status.HTTP_201_CREATED)
+
 
 
 def deposit_to_account(user, user_currency_account_code, amount):
