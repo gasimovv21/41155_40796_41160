@@ -11,7 +11,7 @@ from .models import (
     DepositHistory)
 from .serializers import UserCurrencyAccountSerializer, UserRegistrationSerializer
 from django.db import transaction as db_transaction
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from django.contrib.auth.hashers import make_password
 
 
@@ -142,7 +142,13 @@ def convert_currency(user, from_currency, to_currency, amount):
     except UserCurrencyAccount.DoesNotExist:
         return Response({"error": "One or both currency accounts do not exist for this user."}, status=status.HTTP_400_BAD_REQUEST)
 
-    amount = Decimal(amount)
+    try:
+        amount = Decimal(amount).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    except:
+        return Response({"error": "Invalid amount format."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if amount <= 0:
+        return Response({"error": "Amount must be greater than zero."}, status=status.HTTP_400_BAD_REQUEST)
 
     with db_transaction.atomic():
         if from_currency == 'PLN':
@@ -150,17 +156,13 @@ def convert_currency(user, from_currency, to_currency, amount):
             if isinstance(rate, Response):
                 return rate
 
-            if from_account.balance < amount * rate:
+            if from_account.balance < amount:
                 return Response({"error": "Insufficient balance in PLN account."}, status=status.HTTP_400_BAD_REQUEST)
 
-            from_account.balance -= amount * rate
-            from_account.save()
+            from_account.balance -= amount
+            converted_amount = (amount / rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            to_account.balance += converted_amount
 
-            to_account.balance += amount
-            to_account.save()
-
-            AccountHistory.objects.create(user=user, currency=from_currency, amount=amount * rate, action='expense')
-            AccountHistory.objects.create(user=user, currency=to_currency, amount=amount, action='income')
         else:
             rate = get_exchange_rate(from_currency, 'bid')
             if isinstance(rate, Response):
@@ -170,13 +172,14 @@ def convert_currency(user, from_currency, to_currency, amount):
                 return Response({"error": f"Insufficient balance in {from_currency} account."}, status=status.HTTP_400_BAD_REQUEST)
 
             from_account.balance -= amount
-            from_account.save()
+            converted_amount = (amount * rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            to_account.balance += converted_amount
 
-            to_account.balance += amount * rate
-            to_account.save()
+        from_account.save()
+        to_account.save()
 
-            AccountHistory.objects.create(user=user, currency=from_currency, amount=amount, action='expense')
-            AccountHistory.objects.create(user=user, currency=to_currency, amount=amount * rate, action='income')
+        AccountHistory.objects.create(user=user, currency=from_currency, amount=amount, action='expense')
+        AccountHistory.objects.create(user=user, currency=to_currency, amount=converted_amount, action='income')
 
         transaction = Transaction.objects.create(
             user=user,
@@ -185,7 +188,11 @@ def convert_currency(user, from_currency, to_currency, amount):
             amount=amount
         )
 
-    return Response({"message": "Conversion successful.", "transaction_id": transaction.transaction_id}, status=status.HTTP_201_CREATED)
+    return Response({
+        "message": "Conversion successful.",
+        "converted_amount": str(converted_amount),
+        "transaction_id": transaction.transaction_id
+    }, status=status.HTTP_201_CREATED)
 
 
 def deposit_to_account(user, user_currency_account_code, amount):
