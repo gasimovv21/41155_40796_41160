@@ -106,7 +106,7 @@ def deleteCurrencyAccount(request, pk):
         return Response({"error": "Cannot delete account with a non-zero balance."}, status=status.HTTP_400_BAD_REQUEST)
 
     account.delete()
-    return Response({"message": "Currency account deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    return Response({"message": "Currency account deleted successfully"}, status=status.HTTP_200_OK)
 
 
 def getUserCurrencyAccounts(request, user_id):
