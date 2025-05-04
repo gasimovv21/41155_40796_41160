@@ -9,7 +9,7 @@ from rest_framework import status
 from .models import (
     User, UserCurrencyAccount, Transaction, AccountHistory,
     DepositHistory)
-from .serializers import UserCurrencyAccountSerializer, UserRegistrationSerializer
+from .serializers import UserCurrencyAccountSerializer, UserSerializer
 from django.db import transaction as db_transaction
 from decimal import Decimal, ROUND_HALF_UP
 from django.contrib.auth.hashers import make_password
@@ -22,7 +22,7 @@ def generate_temporary_password(length=14):
 
 def getUsersList(request):
     users = User.objects.all()
-    serializer = UserRegistrationSerializer(users, many=True)
+    serializer = UserSerializer(users, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -32,7 +32,7 @@ def getUserDetail(request, pk):
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = UserRegistrationSerializer(user)
+    serializer = UserSerializer(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -46,7 +46,7 @@ def updateUser(request, pk):
     if "password" in data:
         data["password"] = make_password(data["password"])
 
-    serializer = UserRegistrationSerializer(user, data=data, partial=True)
+    serializer = UserSerializer(user, data=data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
