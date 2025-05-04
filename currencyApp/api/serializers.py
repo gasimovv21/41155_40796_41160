@@ -21,9 +21,18 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'phone_number',
             'email',
+            'password',
             'account_created_on',
             'updated_on',
             'last_login',)
+
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
+
+    def create(self, validated_data):
+        validated_data['password'] = make_password(validated_data['password'])
+        return super().create(validated_data)
 
     def get_account_created_on(self, obj):
         return obj.account_created_on.strftime(
