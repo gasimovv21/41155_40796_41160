@@ -8,7 +8,7 @@
   font-size: 0.95rem;
   padding: 6px 0;
   border-bottom: 1px solid v.$color-border-light;
-  height: 30px;
+  height: 32px;
   position: relative;
 }
 
@@ -16,8 +16,40 @@
   display: flex;
   width: fit-content;
   white-space: nowrap;
-  animation: ticker-move 20s linear infinite;
+  animation: ticker-move 25s linear infinite;
 }
+
+.ticker-sequence {
+  display: flex;
+  gap: 40px; // spacing between items
+  margin-right: 80px; // <-- KEY: space between loop repetitions
+}
+
+
+.ticker-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.ticker-item .pair {
+  font-weight: 600;
+  color: #333; // neutral dark for symbol
+}
+
+.ticker-item .sell {
+  color: #d32f2f; // softer red
+}
+
+.ticker-item .buy {
+  color: #388e3c; // softer green
+}
+
+.ticker-item .loading {
+  color: #999; // muted gray
+}
+
 
 @keyframes ticker-move {
   0% {

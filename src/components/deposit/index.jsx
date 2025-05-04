@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import "./style.scss";
+import { swalToast } from "@/helpers/swal";
 import { handleDepositAction } from "@/actions/deposit-action";
 
 const DepositModal = ({ show, onClose, currencyCode, userId, token, onDepositSuccess }) => {
@@ -15,7 +16,7 @@ const DepositModal = ({ show, onClose, currencyCode, userId, token, onDepositSuc
   const handleDeposit = async () => {
     const result = await handleDepositAction(userId, token, currencyCode, depositAmount);
     if (result) {
-      console.log("Deposit successful:", result);
+      swalToast(`You have successfully added ${depositAmount} ${currencyCode} to your ${currencyCode} account.`);
       onDepositSuccess?.();
       onClose();
     }

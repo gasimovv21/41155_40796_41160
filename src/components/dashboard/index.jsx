@@ -1,14 +1,14 @@
 "use client";
 import React, { useEffect, useState, startTransition } from "react";
 import { useActionState } from "react";
-import { getDashboardData, handleDeleteSelectedAccount } from "@/actions/dashboard-action";
+import { getDashboardData, handleDeleteSelectedAccount, handleLogOutAPI } from "@/actions/dashboard-action";
 import { initialResponse } from "@/helpers/formValidation";
 import { signOut } from "next-auth/react";
-import { swalConfirm } from "@/helpers/swal";
+import { swalConfirm, swalToast } from "@/helpers/swal";
 import DepositHistoryModal from "../deposit-history";
 import ExchangeModal from "../exchange";
 import AddAccountModal from "../add-account";
-import EditProfileModal from "../edit-profil";
+import EditProfileModal from "../edit-profile";
 import ExchangeHistoryModal from "../exchange-history";
 import DepositModal from "../deposit";
 import { Row, Col, Card, Button, Dropdown } from "react-bootstrap";
@@ -27,7 +27,6 @@ const Dashboard = ({ session }) => {
   const [visibleAccounts, setVisibleAccounts] = useState({});
   const [selectedCurrencyCode, setSelectedCurrencyCode] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
-  const [accountId, setAccountId] = useState("");
 
   useEffect(() => {
     const formData = new FormData();
@@ -46,8 +45,17 @@ const Dashboard = ({ session }) => {
 
   const handleLogout = async () => {
     const resp = await swalConfirm("Are you sure to logout?");
+
     if (!resp.isConfirmed) return;
-    signOut({ callbackUrl: "/" });
+    const result = await handleLogOutAPI(session?.accessToken, session?.refreshToken);
+      if (result.error) {
+        swalToast(result.error);
+      } else {
+        swalToast(`You have successfully logged out. Redirecting to main page..`);
+        setTimeout(() => {
+          signOut({ callbackUrl: "/" });
+        }, 1500);
+      }
   };
 
   const toggleAccountVisibility = (accountId) => {
@@ -57,21 +65,15 @@ const Dashboard = ({ session }) => {
     }));
   };
 
-  const handleDelete = async (account_id) => {
+  const handleDelete = async (account_id, account_currency) => {
     const result = await handleDeleteSelectedAccount(session?.accessToken, account_id);
     if (result) {
-      console.log("Account deleted:", result);
       setReloadKey(prev => prev + 1);
+      setTimeout(() => {
+        swalToast(`Account ${account_currency} has been deleted successfully.`);
+      }, 800);
     }
-  };
-
-  const handleAccountAdd = async (account_id) => {
-    const result = await handleAddAccount(session?.accessToken, session?.user?.id);
-    if (result) {
-      console.log("Account deleted:", result);
-      setReloadKey(prev => prev + 1);
-    }
-  };
+  };  
   
   return (
     <div className="dashboard-container">
@@ -152,8 +154,8 @@ const Dashboard = ({ session }) => {
                         </Dropdown.Item>
                         <Dropdown.Item
                           className="text-danger"
-                          onClick={() => handleDelete(account.account_id)}
-                          disabled={parseFloat(account.balance) > 0} // Disable if balance is greater than 0
+                          onClick={() => handleDelete(account.account_id, account.currency_code)}
+                          disabled={parseFloat(account.balance) > 0}
                           title={parseFloat(account.balance) > 0 ? "You can't delete an account with a non-zero balance." : ""}
                         >
                           Delete
@@ -187,13 +189,24 @@ const Dashboard = ({ session }) => {
         onAddSuccess={() => setReloadKey(prev => prev + 1)}
         />
 
-        <EditProfileModal show={showEditModal} onHide={() => setShowEditModal(false)} />
-
-        <ExchangeHistoryModal show={showExchangeHistoryModal} onHide={() => setShowExchangeHistoryModal(false)} />
+        <EditProfileModal
+          show={showEditModal}
+          onHide={() => setShowEditModal(false)}
+          userId={session?.user?.id}
+          token={session?.accessToken}
+          refreshToken={session?.refreshToken}
+        />
+        <ExchangeHistoryModal
+          show={showExchangeHistoryModal}
+          onClose={() => setShowExchangeHistoryModal(false)}
+          userId={session?.user?.id}
+          token={session?.accessToken}
+        />
         
         <DepositHistoryModal
           show={showDepositHistoryModal}
           onClose={() => setShowDepositHistoryModal(false)}
+          currencyCode={selectedCurrencyCode}
           userId={session?.user?.id}
           token={session?.accessToken}
         />

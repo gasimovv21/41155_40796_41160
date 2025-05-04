@@ -2,14 +2,12 @@
 import React, { useEffect, startTransition } from "react";
 import { Modal, Button, ListGroup } from "react-bootstrap";
 import "./style.scss";
-import { getDepositHistoryData } from "@/actions/deposit-history-action";
-//import { useFormState } from "react-dom";
+import { getDepositHistoryData } from "@/actions/deposit-history-action"; // Your API action for deposit history
 import { useActionState } from "react";
 import { initialResponse } from "@/helpers/formValidation";
 
 const DepositHistoryModal = ({ show, onClose, currencyCode, userId, token }) => {
-const [state, dispatch] = useActionState(getDepositHistoryData, initialResponse);
-
+  const [state, dispatch] = useActionState(getDepositHistoryData, initialResponse);
 
   useEffect(() => {
     if (show && currencyCode && userId && token) {
@@ -34,16 +32,21 @@ const [state, dispatch] = useActionState(getDepositHistoryData, initialResponse)
         {depositHistory.length === 0 ? (
           <p className="no-history-text text-center">No deposit history available.</p>
         ) : (
-          <ListGroup className="deposit-list">
+          <div className="deposit-list">
             {depositHistory.map((item) => (
-              <ListGroup.Item key={item.deposit_id} className="deposit-item">
-                <strong className="deposit-amount">
-                  +{item.amount} {item.currency_code}
-                </strong>
-                <div className="deposit-date">Date: {item.created_at}</div>
-              </ListGroup.Item>
+              <div key={item.deposit_id} className="deposit-item">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <span className="badge bg-success">Verified Deposit</span>
+                  <span className="text-success fw-semibold fs-5">
+                    +{item.amount} {item.currency_code}
+                  </span>
+                </div>
+                <div className="deposit-date text-muted small">
+                  Date: {new Date(item.created_at).toLocaleString()}
+                </div>
+              </div>
             ))}
-          </ListGroup>
+          </div>
         )}
       </Modal.Body>
       <Modal.Footer>
@@ -52,7 +55,7 @@ const [state, dispatch] = useActionState(getDepositHistoryData, initialResponse)
         </Button>
       </Modal.Footer>
     </Modal>
-  );
+  );  
 };
 
 export default DepositHistoryModal;

@@ -1,0 +1,71 @@
+@use "@/styles/variables" as v;
+
+.edit-profile-modal {
+  .modal-header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1rem 0.5rem;
+    border-bottom: none;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .account-created-on {
+    margin-left: auto;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: #6c757d;
+  }
+
+  .modal-body {
+    padding: 1.25rem;
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.95rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+
+      &:focus {
+        border-color: v.$color1;
+        outline: none;
+        box-shadow: none;
+      }
+    }
+
+    hr {
+      margin: 1rem 0 0.75rem;
+      border: none;
+      border-top: 3px solid #130101;
+    }
+  }
+}
+
+.btn-primary-custom {
+  background-color: v.$color1;
+  color: #fff;
+  border: none;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: darken(v.$color1, 8%);
+    color: #fff;
+  }
+}
