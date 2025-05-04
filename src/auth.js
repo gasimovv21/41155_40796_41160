@@ -21,7 +21,7 @@ const config = {
         const payload = {
           user: {
             id: data.user_id,
-            name: `${data.first_name} ${data.last_name}`,
+            name: `${data.first_name}`,
           },
           accessToken: data.accessToken,
           refreshToken: data.refreshToken,

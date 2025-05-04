@@ -6,7 +6,7 @@ import "./style.scss";
 import { swalToast } from "@/helpers/swal";
 import { handleExchangeRequest, handleCurrencyRateFetch } from "@/actions/exchange-action";
 
-const ExchangeModal = ({ show, onHide, userId, token }) => {
+const ExchangeModal = ({ show, onHide, userId, token, onExchangeSuccess }) => {
   const [visualAmount1, setVisualAmount1] = useState("");
   const [visualAmount2, setVisualAmount2] = useState("");
   const [realAmount1, setRealAmount1] = useState(null);
@@ -97,19 +97,27 @@ const ExchangeModal = ({ show, onHide, userId, token }) => {
   const handleExchange = async () => {
     const numericAmount1 = parseFloat(realAmount1);
     const numericAmount2 = parseFloat(realAmount2);
-
+  
     if (realAmount1 < 1 || realAmount2 < 1) return;
+  
     const from_currency = isBuying ? "PLN" : input1Currency;
     const to_currency = isBuying ? input1Currency : "PLN";
     const amount = isBuying ? numericAmount2 : numericAmount1;
-
+  
     const result = await handleExchangeRequest(userId, token, from_currency, to_currency, amount);
-      if (result.error) {
-        swalToast(result.error);
-      } else {
+    if (result.error) {
+      swalToast(result.error);
+    } else {
+        if (isBuying) {
+          swalToast(`You have successfully converted ${numericAmount2} ${from_currency} to ${numericAmount1.toFixed(2)}.. ${to_currency}.`);
+        } else {
+          swalToast(`You have successfully converted ${numericAmount1} ${from_currency} to ${numericAmount2.toFixed(2)}.. ${to_currency}.`);
+        }
+        onExchangeSuccess?.();
         onHide();
-      }
+    }
   };
+  
 
   return (
     <Modal show={show} onHide={onHide} centered size="lg" className="exchange-modal">

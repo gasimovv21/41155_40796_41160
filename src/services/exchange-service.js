@@ -1,7 +1,7 @@
 const REQ_API_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const REQ_BANK_API_URL = process.env.NEXT_PUBLIC_BANK_API_BASE_URL;
 
 export const exchange = (userId, token, payload) => {
-  console.log(payload);
   return fetch(`${REQ_API_URL}/currency-accounts/convert/${userId}/`, {
     method: "POST",
     body: JSON.stringify(payload),
@@ -13,7 +13,7 @@ export const exchange = (userId, token, payload) => {
 };
 
 export const fetchCurrencyRates = (currency) => {
-    return fetch(`https://api.nbp.pl/api/exchangerates/rates/c/${currency}/?format=json`, {
+    return fetch(`${REQ_BANK_API_URL}/exchangerates/rates/c/${currency}/?format=json`, {
     method: "GET",
     headers: {
         "Content-Type": "application/json",

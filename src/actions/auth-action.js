@@ -16,7 +16,6 @@ const FormSchema = Yup.object({
 
 export const loginAction = async (prevState, formData) => {
   const fields = convertFormDataToJson(formData);
-  //console.log(fields);
 
   try {
     FormSchema.validateSync(fields, { abortEarly: false });

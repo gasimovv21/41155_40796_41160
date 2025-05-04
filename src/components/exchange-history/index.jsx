@@ -1,27 +1,31 @@
-import React from "react";
-import { Modal, Button, ListGroup } from "react-bootstrap";
+"use client";
+import React, { useEffect, startTransition } from "react";
+import { Modal, Button } from "react-bootstrap";
 import "./style.scss";
+import { getExchangeHistoryData } from "@/actions/exchange-history-action";
+import { useActionState } from "react";
+import { initialResponse } from "@/helpers/formValidation";
 
-const ExchangeHistoryModal = ({ show, onHide }) => {
-  const exchangeHistory = [
-    {
-      id: 1,
-      amount: "150.00",
-      created_at: "2025-04-15T12:00:00Z",
-    },
-    {
-      id: 2,
-      amount: "250.00",
-      created_at: "2025-04-14T09:30:00Z",
-    },
-  ];
+const ExchangeHistoryModal = ({ show, onClose, userId, token }) => {
+  const [state, dispatch] = useActionState(getExchangeHistoryData, initialResponse);
 
-  const currencyCode = "USD";
+  useEffect(() => {
+    if (show && userId && token) {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      formData.append("token", token);
+      startTransition(() => {
+        dispatch(formData);
+      });
+    }
+  }, [show, userId, token, dispatch]);
+
+  const exchangeHistory = state?.data || [];
 
   return (
     <Modal
       show={show}
-      onHide={onHide}
+      onHide={onClose}
       size="lg"
       centered
       className="exchange-modal"
@@ -35,20 +39,33 @@ const ExchangeHistoryModal = ({ show, onHide }) => {
             No exchange history available.
           </p>
         ) : (
-          <ListGroup className="exchange-list">
-            {exchangeHistory.map((item) => (
-              <ListGroup.Item key={item.id} className="exchange-item">
-                <strong className="exchange-amount">
-                  +{item.amount} {currencyCode}
-                </strong>
-                <div className="exchange-date">Date: {item.created_at}</div>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
+          <div className="exchange-list">
+            {exchangeHistory.map((item) => {
+              const isIncome = item.action === "income";
+              const amountPrefix = isIncome ? "+" : "-";
+              const colorClass = isIncome ? "text-success" : "text-danger";
+  
+              return (
+                <div key={item.history_id} className="history-card border rounded p-3 mb-3 shadow-sm">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <span className={`badge ${isIncome ? "bg-success" : "bg-danger"}`}>
+                      {isIncome ? "Income" : "Expense"}
+                    </span>
+                    <span className={`fs-5 fw-semibold ${colorClass}`}>
+                      {amountPrefix}{item.amount} {item.currency}
+                    </span>
+                  </div>
+                  <div className="text-muted small">
+                    Date: {new Date(item.created_at).toLocaleString()}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button className="exchange-close-btn" onClick={onHide}>
+        <Button className="exchange-close-btn" onClick={onClose}>
           Close
         </Button>
       </Modal.Footer>

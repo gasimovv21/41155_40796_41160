@@ -1,10 +1,10 @@
 "use server";
-import { fetchDepositHistoryData } from "@/services/deposit-history-service";
+import { fetchExchangeHistoryData } from "@/services/exchange-history-service";
 
-export const getDepositHistoryData = async (prevState, formData) => {
+export const getExchangeHistoryData = async (prevState, formData) => {
   try {
-    const { currencyCode, userId, token } = Object.fromEntries(formData.entries());
-    const response = await fetchDepositHistoryData(currencyCode, userId, token);
+    const { userId, token } = Object.fromEntries(formData.entries());
+    const response = await fetchExchangeHistoryData(userId, token);
     const data = await response.json();
 
     if (response.ok) {
