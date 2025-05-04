@@ -10,6 +10,7 @@ from .models import User, Transaction, DepositHistory, AccountHistory
 from django.core.mail import send_mail
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from rest_framework_simplejwt.exceptions import InvalidToken
 from django.contrib.auth.hashers import make_password
 
 
@@ -189,17 +190,24 @@ def getAccountHistory(request, user_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
+    refresh_token = request.data.get("refresh")
+
+    if not refresh_token:
+        return Response({"error": "Refresh token is required."}, status=400)
+
     try:
-        refresh_token = request.data.get("refresh")
         token = RefreshToken(refresh_token)
 
-        if token.payload['user_id'] != request.user.id:
+        if token['user_id'] != request.user.id:
             return Response({"error": "Token does not belong to the authenticated user."}, status=403)
 
         token.blacklist()
         return Response({"message": "Logout successful."})
-    except TokenError:
+
+    except (TokenError, InvalidToken):
         return Response({"error": "Invalid or expired refresh token."}, status=400)
+    except Exception:
+        return Response({"error": "Something went wrong."}, status=500)
 
 
 @api_view(['POST'])
