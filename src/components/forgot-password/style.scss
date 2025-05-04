@@ -1,0 +1,106 @@
+@use "../../styles/variables.scss" as v;
+
+.forgot-password-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, v.$color1, darken(v.$color1, 10%));
+  padding: 2rem;
+}
+
+.forgot-password-card {
+  background-color: v.$color-white;
+  border-radius: 2rem;
+  padding: 4rem 6rem;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+
+  @media (max-width: 567px) {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .text {
+    h1 {
+      font-size: 36px;
+      margin-bottom: 0.7rem;
+      color: v.$color-text-dark;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: v.$color-text-muted;
+    }
+  }
+
+  form {
+    .input-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+
+      input {
+        width: 100%;
+        height: 55px;
+        border-radius: 10px;
+        background-color: v.$color-white;
+        border: 1px solid v.$color-border-light;
+        color: v.$color-text-dark;
+        padding: 0 1rem;
+
+        &::placeholder {
+          color: v.$color-text-soft;
+        }
+      }
+
+      .invalid-feedback {
+        position: absolute;
+        left: 5px;
+        bottom: -20px;
+        color: red;
+      }
+    }
+
+    button {
+      font-size: 18px;
+      width: 100%;
+      height: 56px;
+      border-radius: 52px;
+      border: none;
+      color: v.$color1;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: v.$color-primary1;
+        color: v.$color-bg-light;
+      }
+
+      &:active {
+        background-color: v.$color-primary2;
+      }
+    }
+  }
+
+  .back-to-signin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+
+    a {
+      text-decoration: none;
+      color: v.$color-primary4;
+
+      span {
+        margin-right: 0.5rem;
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      &:active {
+        color: v.$color-primary2;
+      }
+    }
+  }
+}

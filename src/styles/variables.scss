@@ -1,0 +1,30 @@
+// Ana renk paleti
+$color1: #0e214d; // lacivert
+$color-bg-light: #f4f6f8; // kart arka planı
+$color-bg-soft: #f0f2f5; // header arka planı
+$color-white: #ffffff;
+$color-border: #e1e5ea;
+$color-border-light: #d1d5db;
+$color-text-dark: #1f2937;
+$color-text-light: #4b5563;
+$color-text-muted: #6b7280;
+$color-text-soft: #888;
+$color-blue-hover: #1e3a8a;
+$color-blue: #3b4cca;
+$color-primary: $color-blue;
+$color-primary1: $color1;
+$color-primary2: $color-blue-hover;
+$color-primary4: $color1; // veya istediğin başka ton
+$color-bg-light: #f4f6f8; // çok açık gri (güzel arka plan rengi)
+$color-border-light: #d1d5db; // biraz daha koyu gri
+$color-text-dark: #1f2937; // yazı için iyi kontrast
+
+/* BOOTSTRAP */
+$font-family-sans-serif: "Roboto", Sans-serif;
+$primary: $color1;
+$secondary: $color1;
+$navbar-light-color: $color1;
+$navbar-light-hover-color: $color1;
+$navbar-light-active-color: $color1;
+$navbar-nav-link-padding-x: "1rem";
+$nav-link-font-weight: 500;

@@ -1,0 +1,43 @@
+@import "@/styles/variables";
+
+.deposit-modal {
+  .modal-content {
+    border-radius: 12px;
+    border: 1px solid $color-border;
+  }
+}
+
+.deposit-title {
+  font-weight: 600;
+  color: $color1;
+}
+
+.no-history-text {
+  color: $color-text-soft;
+  font-size: 14px;
+}
+.close-btn {
+  background-color: rgb(255, 255, 255);
+  color: black;
+}
+
+.deposit-list {
+  .deposit-item {
+    background-color: $color-white;
+    border: 1px solid $color-border-light;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    padding: 10px 15px;
+
+    .deposit-amount {
+      color: $color1;
+      font-weight: 500;
+    }
+
+    .deposit-date {
+      font-size: 13px;
+      color: $color-text-muted;
+      margin-top: 4px;
+    }
+  }
+}

@@ -1,0 +1,31 @@
+.add-account-modal {
+  font-family: "Roboto", sans-serif;
+
+  .modal-content {
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .modal-title {
+    font-weight: 600;
+  }
+
+  .modal-footer {
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+
+    button {
+      min-width: 120px;
+      font-weight: 600;
+    }
+  }
+
+  .dropdown-toggle {
+    min-width: 220px;
+    text-align: left;
+  }
+
+  .dropdown-menu {
+    min-width: 220px;
+  }
+}

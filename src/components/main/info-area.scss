@@ -1,0 +1,31 @@
+@use "../../styles/variables" as v;
+
+.info-area {
+  padding: 1rem;
+}
+
+.info-card {
+  border: 1px solid v.$color-border !important;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  padding: 1rem;
+}
+
+.card-bg-light {
+  background-color: v.$color-bg-light !important;
+}
+
+.card-bg-white {
+  background-color: v.$color-white !important;
+}
+
+.card-title {
+  color: v.$color-primary1;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.card-text {
+  color: v.$color-text-light;
+  font-size: 0.95rem;
+}
