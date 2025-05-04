@@ -8,6 +8,36 @@ from .models import (
 from django.contrib.auth.hashers import make_password
 
 
+class UserSerializer(serializers.ModelSerializer):
+    account_created_on = serializers.SerializerMethodField()
+    updated_on = serializers.SerializerMethodField()
+    last_login = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'email',
+            'account_created_on',
+            'updated_on',
+            'last_login',)
+
+    def get_account_created_on(self, obj):
+        return obj.account_created_on.strftime(
+            '%d-%m-%Y') if obj.account_created_on else None
+
+    def get_last_login(self, obj):
+        return obj.last_login.strftime(
+            '%d-%m-%Y %H:%M:%S') if obj.last_login else None
+
+    def get_updated_on(self, obj):
+        return obj.updated_on.strftime(
+            '%d-%m-%Y %H:%M:%S') if obj.updated_on else None
+
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
