@@ -6,7 +6,7 @@ import { handleGetChartData } from "@/actions/main-action";
 
 export default function ExchangeTicker() {
   const [exchangeRates, setExchangeRates] = useState({});
-  
+
   const currencyList = [
     { code: "USD", label: "USD", flag: "/icons/flags/usd.svg" },
     { code: "EUR", label: "EUR", flag: "/icons/flags/eur.svg" },
@@ -45,7 +45,11 @@ export default function ExchangeTicker() {
       .map((currency) => {
         const rate = exchangeRates[currency.code];
         if (rate) {
-          return `                 ${currency.code}/PLN     SELL: ${rate.bid.toFixed(2)} BUY: ${rate.ask.toFixed(2)}                 `;
+          return `                 ${
+            currency.code
+          }/PLN     SELL: ${rate.bid.toFixed(2)} BUY: ${rate.ask.toFixed(
+            2
+          )}                 `;
         }
         return `${currency.code}/PLN: --.-- • ${currency.code}/PLN: --.--`;
       })
