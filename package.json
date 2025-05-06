@@ -1,0 +1,30 @@
+{
+  "name": "currency-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "chart.js": "^4.4.9",
+    "decimal.js": "^10.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "next": "15.2.4",
+    "next-auth": "^5.0.0-beta.18",
+    "openid-client": "^6.3.4",
+    "react": "^19.0.0",
+    "react-bootstrap": "^2.10.9",
+    "react-dom": "^19.0.0",
+    "sweetalert2": "^11.17.2",
+    "yup": "^1.6.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "eslint": "^9",
+    "eslint-config-next": "15.2.4"
+  }
+}

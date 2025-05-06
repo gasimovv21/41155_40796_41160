@@ -1,0 +1,13 @@
+@import "../../styles/variables.scss";
+.signup-page-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(to bottom, $color1, darken($color1, 10%));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    background: linear-gradient(135deg, #e3f2fd, #c5cae9);
+  }
+}

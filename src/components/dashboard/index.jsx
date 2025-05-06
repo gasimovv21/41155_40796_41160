@@ -1,0 +1,214 @@
+"use client";
+import React, { useEffect, useState, startTransition } from "react";
+import { useActionState } from "react";
+import { getDashboardData, handleDeleteSelectedAccount } from "@/actions/dashboard-action";
+import { initialResponse } from "@/helpers/formValidation";
+import { signOut } from "next-auth/react";
+import { swalConfirm } from "@/helpers/swal";
+import DepositHistoryModal from "../deposit-history";
+import ExchangeModal from "../exchange";
+import AddAccountModal from "../add-account";
+import EditProfileModal from "../edit-profil";
+import ExchangeHistoryModal from "../exchange-history";
+import DepositModal from "../deposit";
+import { Row, Col, Card, Button, Dropdown } from "react-bootstrap";
+import Image from "next/image";
+import "./style.scss";
+
+const Dashboard = ({ session }) => {
+  const [state, dispatch] = useActionState(getDashboardData, initialResponse);
+  const [accounts, setAccounts] = useState([]);
+  const [showDepositHistoryModal, setShowDepositHistoryModal] = useState(false);
+  const [showExchangeHistoryModal, setShowExchangeHistoryModal] = useState(false);
+  const [showExchangeModal, setShowExchangeModal] = useState(false);
+  const [showAddAccountModal, setShowAddAccountModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [visibleAccounts, setVisibleAccounts] = useState({});
+  const [selectedCurrencyCode, setSelectedCurrencyCode] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [accountId, setAccountId] = useState("");
+
+  useEffect(() => {
+    const formData = new FormData();
+    formData.append("userId", session?.user?.id);
+    formData.append("token", session?.accessToken);
+    startTransition(() => {
+      dispatch(formData);
+    });
+  }, [session, dispatch, reloadKey]);
+
+  useEffect(() => {
+    if (Array.isArray(state?.data)) {
+      setAccounts(state.data);
+    }
+  }, [state]);
+
+  const handleLogout = async () => {
+    const resp = await swalConfirm("Are you sure to logout?");
+    if (!resp.isConfirmed) return;
+    signOut({ callbackUrl: "/" });
+  };
+
+  const toggleAccountVisibility = (accountId) => {
+    setVisibleAccounts(prev => ({
+      ...prev,
+      [accountId]: !prev[accountId],
+    }));
+  };
+
+  const handleDelete = async (account_id) => {
+    const result = await handleDeleteSelectedAccount(session?.accessToken, account_id);
+    if (result) {
+      console.log("Account deleted:", result);
+      setReloadKey(prev => prev + 1);
+    }
+  };
+
+  const handleAccountAdd = async (account_id) => {
+    const result = await handleAddAccount(session?.accessToken, session?.user?.id);
+    if (result) {
+      console.log("Account deleted:", result);
+      setReloadKey(prev => prev + 1);
+    }
+  };
+  
+  return (
+    <div className="dashboard-container">
+      <Card className="dashboard-card">
+        <div className="dashboard-header">
+          <div className="d-flex justify-content-between">
+            <div>
+              <h3 className="dashboard-title">
+                Hello, {session?.user?.name}
+              </h3>
+              <p className="dashboard-subtitle">
+                Welcome back to your dashboard
+              </p>
+            </div>
+            <Dropdown>
+              <Dropdown.Toggle className="header-dropdown-toggle" size="sm">⋮</Dropdown.Toggle>
+              <Dropdown.Menu align="end">
+                <Dropdown.Item onClick={() => setShowAddAccountModal(true)}>Add Account</Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowEditModal(true)}>Edit Profile</Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowExchangeHistoryModal(true)}>Exchange History</Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item className="text-danger" onClick={handleLogout}>Logout</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+        </div>
+
+        {/* Account Cards */}
+        <Row className="gy-4">
+          {accounts.map((account) => (
+            <Col md={4} key={account.account_id}>
+              <Card className="account-card">
+                <Card.Body>
+                  <Card.Title className="account-title">Account {account.currency_code}</Card.Title>
+                  <div className="account-info d-flex align-items-center justify-content-between">
+                    <div>
+                      Account Number:{" "}
+                      <span className="account-number">
+                        {visibleAccounts[account.account_id] ? account.account_number : "XXX-XXX-XXXX"}
+                      </span>
+                    </div>
+                    <Image
+                      src={
+                        visibleAccounts[account.account_id]
+                          ? "/icons/eye/State=Default.svg"
+                          : "/icons/eye/State=Dissabled.svg"
+                      }
+                      alt="Toggle visibility"
+                      width={20}
+                      height={20}
+                      className="eye-icon"
+                      onClick={() => toggleAccountVisibility(account.account_id)}
+                      style={{ cursor: "pointer", marginLeft: "10px" }}
+                    />
+                  </div>
+                  <Card.Text className="account-balance">
+                    Balance: {account.balance} {account.currency_code}
+                  </Card.Text>
+                  <div className="d-flex justify-content-end">
+                    <Dropdown>
+                      <Dropdown.Toggle variant="outline-secondary" size="sm">Options</Dropdown.Toggle>
+                      <Dropdown.Menu>
+                        <Dropdown.Item
+                          onClick={() => {
+                            setSelectedCurrencyCode(account.currency_code);
+                            setShowDepositModal(true);
+                          }}
+                        >
+                          Deposit Money
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => {
+                            setSelectedCurrencyCode(account.currency_code);
+                            setShowDepositHistoryModal(true);
+                          }}
+                        >
+                          Deposit History
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          className="text-danger"
+                          onClick={() => handleDelete(account.account_id)}
+                          disabled={parseFloat(account.balance) > 0} // Disable if balance is greater than 0
+                          title={parseFloat(account.balance) > 0 ? "You can't delete an account with a non-zero balance." : ""}
+                        >
+                          Delete
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+
+        <Button className="exchange-button w-100" onClick={() => setShowExchangeModal(true)}>Exchange</Button>
+
+        <ExchangeModal
+          show={showExchangeModal}
+          onHide={() => setShowExchangeModal(false)}
+          currencyCode={selectedCurrencyCode}
+          userId={session?.user?.id}
+          token={session?.accessToken}
+          onExchangeSuccess={() => setReloadKey(prev => prev + 1)}
+        />
+
+        <AddAccountModal
+        show={showAddAccountModal} onHide={() => setShowEditModal(false)}
+        onClose={() => setShowAddAccountModal(false)}
+        currencyCode={selectedCurrencyCode}
+        userId={session?.user?.id}
+        token={session?.accessToken}
+        onAddSuccess={() => setReloadKey(prev => prev + 1)}
+        />
+
+        <EditProfileModal show={showEditModal} onHide={() => setShowEditModal(false)} />
+
+        <ExchangeHistoryModal show={showExchangeHistoryModal} onHide={() => setShowExchangeHistoryModal(false)} />
+        
+        <DepositHistoryModal
+          show={showDepositHistoryModal}
+          onClose={() => setShowDepositHistoryModal(false)}
+          userId={session?.user?.id}
+          token={session?.accessToken}
+        />
+
+        <DepositModal
+          show={showDepositModal}
+          onClose={() => setShowDepositModal(false)}
+          currencyCode={selectedCurrencyCode}
+          userId={session?.user?.id}
+          token={session?.accessToken}
+          onDepositSuccess={() => setReloadKey(prev => prev + 1)}
+        />
+      </Card>
+    </div>
+  );
+};
+
+export default Dashboard;

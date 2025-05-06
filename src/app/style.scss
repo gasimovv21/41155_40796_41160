@@ -1,0 +1,17 @@
+@import "../styles/variables.scss";
+
+.page-wrapper {
+  background: linear-gradient(to bottom, $color1, darken($color1, 10%));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: $color-bg-soft;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.card-container {
+  padding: 15px;
+  max-width: 1700px;
+  width: 100%;
+}

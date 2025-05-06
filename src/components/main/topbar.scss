@@ -1,0 +1,25 @@
+@use "../../styles/variables.scss" as v;
+.top-bar {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: dark;
+}
+
+.login-btn {
+  background-color: v.$color1 !important;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 20px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: v.$color-border-light !important;
+  }
+}

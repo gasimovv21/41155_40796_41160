@@ -1,0 +1,29 @@
+@use "../../styles/variables" as v;
+
+.exchange-ticker-wrapper {
+  overflow: hidden;
+  background-color: v.$color-bg-light;
+  color: v.$color-text-dark;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 6px 0;
+  border-bottom: 1px solid v.$color-border-light;
+  height: 30px;
+  position: relative;
+}
+
+.exchange-ticker-track {
+  display: flex;
+  width: fit-content;
+  white-space: nowrap;
+  animation: ticker-move 20s linear infinite;
+}
+
+@keyframes ticker-move {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}

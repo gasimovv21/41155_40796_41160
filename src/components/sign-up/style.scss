@@ -1,0 +1,247 @@
+@use "../../styles/variables.scss" as v;
+
+.signup-page-form {
+  background-color: white;
+  border-radius: 20px;
+  padding: 2.5rem 4.5rem;
+  margin-bottom: 4rem;
+  max-width: 875px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+
+  @media (max-width: 768px) {
+    padding: 2rem 1.25rem;
+    width: 90%;
+  }
+
+  @media (max-width: 576px) {
+    padding: 2rem 1.25rem;
+    margin-top: 5rem;
+  }
+
+  .text {
+    text-align: center;
+
+    h1 {
+      color: v.$color1;
+      font-size: 36px;
+      font-weight: bold;
+      margin-bottom: 0.7rem;
+
+      @media (max-width: 576px) {
+        font-size: 30px;
+      }
+    }
+
+    p {
+      margin-bottom: 1rem;
+
+      @media (max-width: 576px) {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .alert {
+    @media (max-width: 576px) {
+      font-size: 12px;
+    }
+
+    @media (max-width: 400px) {
+      text-align: center;
+    }
+  }
+
+  form {
+    .input-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+
+      input {
+        height: 40px;
+        border-radius: 10px;
+
+        &::placeholder {
+          color: #d8d8d8;
+        }
+
+        @media (max-width: 576px) {
+          height: 30px;
+        }
+      }
+
+      .form-select {
+        height: 40px;
+        border-radius: 10px;
+
+        &:disabled {
+          color: red !important;
+        }
+      }
+
+      &.password-group {
+        position: relative;
+        transition: all 0.2s linear;
+
+        .passwordEye {
+          position: absolute;
+          top: 12px;
+          right: 10px;
+          transition: all 0.2s linear;
+          z-index: 99;
+
+          @media (max-width: 576px) {
+            top: 7px;
+          }
+        }
+
+        .was-validated .form-control:invalid,
+        .form-control.is-invalid {
+          background-position: right calc(2.5em + 0.1875rem) center;
+        }
+      }
+
+      .invalid-feedback {
+        position: absolute;
+        left: 5px;
+        bottom: -20px;
+
+        @media (max-width: 576px) {
+          font-size: 12px;
+        }
+      }
+
+      textarea {
+        resize: none;
+        border-radius: 10px !important;
+
+        &::placeholder {
+          color: #d8d8d8;
+        }
+      }
+    }
+
+    .form-check {
+      margin-bottom: 2rem;
+      position: relative;
+      color: var(--color-blue4);
+
+      label {
+        @media (max-width: 576px) {
+          font-size: 14px;
+        }
+
+        a {
+          text-decoration: none;
+          margin-left: 0.5rem;
+          color: var(--color-blue2);
+
+          &:hover {
+            color: var(--color-blue4);
+          }
+
+          &:active {
+            color: var(--color-blue1);
+          }
+        }
+      }
+
+      .invalid-feedback {
+        position: absolute;
+        left: 5px;
+        bottom: -20px;
+
+        @media (max-width: 576px) {
+          font-size: 12px;
+        }
+      }
+    }
+
+    button {
+      height: 45px;
+      width: 100%;
+
+      @media (max-width: 576px) {
+        height: 30px;
+        width: 80%;
+      }
+    }
+  }
+
+  .seperator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    span {
+      color: #2b2a2a;
+      margin: 8.5px 10px 9.5px 10px;
+    }
+
+    &::after {
+      content: "";
+      width: 100%;
+      height: 1px;
+      background-color: #2b2a2a;
+    }
+
+    &::before {
+      content: "";
+      width: 100%;
+      height: 1px;
+      background-color: #2b2a2a;
+    }
+  }
+
+  .social-connection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  small {
+    font-size: 14px;
+    color: var(--color-blue4);
+    width: 100%;
+
+    @media (max-width: 768px) {
+      font-size: 14px;
+    }
+
+    @media (max-width: 567px) {
+      font-size: 12px;
+    }
+
+    a {
+      text-decoration: none;
+      margin-left: 0.5rem;
+      color: var(--color-blue2);
+
+      &:hover {
+        color: var(--color-blue4);
+      }
+
+      &:active {
+        color: var(--color-blue1);
+      }
+    }
+  }
+}
+
+.was-validated .form-check-input:invalid ~ .form-check-label,
+.form-check-input.is-invalid ~ .form-check-label {
+  color: #2b2a2a;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}

@@ -1,0 +1,71 @@
+@use "../../styles/variables.scss" as v;
+
+.sing-in-page {
+  background-image: url("../../../public/images/bg/web1.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  .signin-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+
+    @media (min-width: 1200px) {
+      margin-left: 100px;
+    }
+
+    .form-column {
+      display: flex;
+      justify-content: center;
+    }
+
+    .signin-card {
+      background-color: rgba(255, 255, 255, 0.5);
+      width: 100%;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-column {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .signin-card .form-control {
+      width: 100%;
+      max-width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    .forgot-password-link-wrapper {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 4px;
+
+      .forgot-password-link {
+        font-size: 0.85rem;
+        color: v.$color1;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+          color: v.$color-blue-hover;
+        }
+      }
+    }
+    a {
+      color: v.$color1;
+      transition: background-color 0.5s ease;
+
+      &:hover {
+        color: v.$color1;
+      }
+    }
+  }
+}

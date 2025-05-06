@@ -1,0 +1,29 @@
+@use "../../styles/variables.scss" as v;
+
+.deposit-modal {
+  .modal-content {
+    border-radius: 16px;
+    padding: 1rem;
+  }
+
+  .deposit-button {
+    background-color: v.$color-primary1;
+    color: v.$color-white;
+    font-weight: bold;
+    font-size: 18px;
+    border: none;
+
+    &:hover {
+      background-color: v.$color-primary1;
+    }
+
+    &:active {
+      background-color: v.$color-primary2;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+}
