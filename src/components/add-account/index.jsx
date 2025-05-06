@@ -3,22 +3,13 @@ import React, { useState } from "react";
 import { Modal, Form, Button, Dropdown } from "react-bootstrap";
 import Image from "next/image";
 import { handleAddAccount } from "@/actions/add-account-action";
+import { currencyList } from "@/helpers/currencyList";
+import { swalToast } from "@/helpers/swal";
 import "./style.scss";
 
 const AddAccountModal = ({ show, onClose, userId, token, onAddSuccess }) => {
   const [selectedCurrency, setSelectedCurrency] = useState(null);
   const [error, setError] = useState("");
-
-  const currencyList = [
-    { code: "USD", label: "USD", flag: "/icons/flags/usd.svg" },
-    { code: "EUR", label: "EUR", flag: "/icons/flags/eur.svg" },
-    { code: "GBP", label: "GBP", flag: "/icons/flags/gbp.svg" },
-    { code: "JPY", label: "JPY", flag: "/icons/flags/jpy.svg" },
-    { code: "CAD", label: "CAD", flag: "/icons/flags/cad.svg" },
-    { code: "AUD", label: "AUD", flag: "/icons/flags/aud.svg" },
-    { code: "CHF", label: "CHF", flag: "/icons/flags/chf.svg" },
-    { code: "SEK", label: "SEK", flag: "/icons/flags/sek.svg" },
-  ];
 
   const handleSubmit = async () => {
     if (!selectedCurrency) {
@@ -32,9 +23,9 @@ const AddAccountModal = ({ show, onClose, userId, token, onAddSuccess }) => {
       onAddSuccess?.();
       onClose();
       setSelectedCurrency(null);
-      setError("");
+      swalToast(`Your ${selectedCurrency.code} account has been successfully added.`);
     } else {
-      setError("Failed to add account. You may already have this currency.");
+      swalToast("Failed to add account. You may already have this currency.");
     }
   };
 
