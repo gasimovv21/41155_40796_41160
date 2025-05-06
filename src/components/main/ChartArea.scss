@@ -1,0 +1,118 @@
+@use "../../styles/variables.scss" as v;
+
+.toggleSwitch {
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 50%;
+  border-radius: 0.4rem;
+
+  .btn {
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 0.4rem;
+    margin-right: 0.5rem;
+    background-color: #f8f9fa;
+    color: #000;
+    transition: background-color 0.2s ease;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    &.active,
+    &[aria-pressed="true"] {
+      background-color: #cce4ff;
+      border-color: #007bff;
+      color: #000;
+    }
+  }
+}
+
+.currencySelect {
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  height: auto;
+  border-radius: 0.4rem;
+  width: 100%;
+
+  .dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 15%;
+    border: 1px solid #ccc;
+    border-radius: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+    background-color: #f8f9fa;
+    color: #000;
+    transition: background-color 0.2s ease;
+
+    &:hover,
+    &:focus,
+    &.show {
+      background-color: #cce4ff;
+      border-color: #007bff;
+      color: #000;
+    }
+
+    &::after {
+      margin-left: auto;
+    }
+  }
+
+  .dropdown-menu {
+    border-radius: 0.4rem;
+    padding: 0.25rem;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.3rem;
+    transition: background-color 0.2s ease;
+
+    img {
+      margin-right: 8px;
+    }
+
+    &:hover,
+    &:focus {
+      background-color: #cce4ff;
+      color: #000;
+    }
+  }
+}
+
+.toggleSwitch {
+  padding: 0.5rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 50%;
+  border-radius: 0.4rem;
+
+  .btn {
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 0.4rem;
+    margin-right: 0.5rem;
+    background-color: #f8f9fa;
+    color: #000;
+    transition: background-color 0.2s ease;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    &.active {
+      background-color: #cce4ff;
+      border-color: #007bff;
+      color: #000;
+    }
+  }
+}
+
