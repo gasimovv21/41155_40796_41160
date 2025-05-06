@@ -1,7 +1,13 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Chart } from "chart.js/auto";
-import { Row, Col, Form, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
+import {
+  Row,
+  Col,
+  Form,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "react-bootstrap";
 import { handleGetChartData } from "@/actions/main-action";
 
 const ChartArea = () => {
@@ -28,8 +34,8 @@ const ChartArea = () => {
   const fetchChartData = async () => {
     const data = await handleGetChartData(toCurrency.toLowerCase()); // Pass the correct currency code to the API
     if (data && data.rates) {
-      const values = data.rates.map((item) =>
-        rateType === "BUY" ? item.ask : item.bid // Select ask for BUY, bid for SELL
+      const values = data.rates.map(
+        (item) => (rateType === "BUY" ? item.ask : item.bid) // Select ask for BUY, bid for SELL
       );
       setChartData((prevData) => ({
         ...prevData,
@@ -60,7 +66,7 @@ const ChartArea = () => {
         },
         scales: {
           y: {
-            beginAtZero: false,  // Prevents starting at zero
+            beginAtZero: false, // Prevents starting at zero
             ticks: {
               min: Math.min(...chartData.datasets[0].data) - 0.1, // Slightly lower than the lowest data value
               max: Math.max(...chartData.datasets[0].data) + 0.1, // Slightly higher than the highest data value
@@ -117,7 +123,11 @@ const ChartArea = () => {
             <ToggleButton id="buy-toggle" value="BUY" variant="outline-primary">
               Buy
             </ToggleButton>
-            <ToggleButton id="sell-toggle" value="SELL" variant="outline-primary">
+            <ToggleButton
+              id="sell-toggle"
+              value="SELL"
+              variant="outline-primary"
+            >
               Sell
             </ToggleButton>
           </ToggleButtonGroup>

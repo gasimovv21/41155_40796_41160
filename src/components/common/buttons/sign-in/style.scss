@@ -24,6 +24,8 @@
   .spinner-border {
     width: 20px;
     height: 20px;
-    color: aqua;
+    border-width: 0.15em;
+    border-color: #fff;
+    border-right-color: transparent;
   }
 }
