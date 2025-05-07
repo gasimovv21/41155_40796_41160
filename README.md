@@ -15,6 +15,35 @@ Virtual Currency Exchange is a full-stack web application that allows users to:
 | Recep Enes Karatekin  | 40796  | Frontend Developer                                             |
 | Eltun Gasimov         | 41160  | Backend Developer, Database Specialist, QA, Docs, PM          |
 
+
+## Key Features
+
+- **🔐 User Registration and Authentication**: 
+    - Secure user registration and login functionality.
+    - Email and password validation with custom error handling.
+    - Token refresh & blacklist for secure logout and session management.
+- **🔁 Password Management**: 
+    - Change password functionality for authenticated users.
+    - Password reset via email with secure token-based links.
+- **💰 Currency Account Management**:
+  - Default PLN account creation upon registration.
+  - Users can create, rename, or delete additional currency accounts.
+  - Protection against deletion of default PLN accounts or accounts with non-zero balances.
+- **💱 Currency Conversion**:
+  - Live exchange rates fetched from the official NBP API.
+  - Support for 10+ currencies (e.g., USD, EUR, GBP, etc.).
+  - Real-time conversion updates both source and target balances automatically.
+- **📊 Transaction and History Tracking**:
+  - Detailed transaction logs: deposits, withdrawals, and conversions.
+  - Filter transactions by date or specific user account.
+  - Access full history for transparent account activity.
+- **➕ Deposits**:
+  - Deposit funds into any available currency account.
+  - Deposit records are stored and available in the history view.
+- **🧮 Currency Calculator**:
+  - Public, simple exchange rate calculator available on the home page.
+  - Doesn’t require authentication. Useful for quick lookups.
+
 ## 🛠 Tech Stack
 - **Frontend:** Next.js, React, SCSS, React Bootstrap
 - **Backend:** Python, Django REST Framework
@@ -23,6 +52,7 @@ Virtual Currency Exchange is a full-stack web application that allows users to:
 - **CI/CD & Containerization:** Docker, Docker Compose
 - **Testing:** Pytest
 - **API Communication:** RESTful, Axios
+- **Real-Time API:** Integration with NBP API for live currency exchange rates
 
 ---
 
@@ -108,3 +138,72 @@ This will:
 1. **To run unit tests for Django backend:**
    ```bash
    docker-compose exec backend pytest
+
+---
+
+## 🚀 Usage
+
+### 👤 User Management
+- Register via `/api/register/`
+- Log in to receive JWT access/refresh tokens
+- Secure routes require Authorization headers
+- Password reset links sent via email
+
+### 💼 Currency Accounts
+- Default PLN account created on registration
+- Manage other accounts like USD, EUR, GBP etc.
+- View transaction/deposit history
+
+### 💸 Currency Conversion
+- Use real-time exchange rates from NBP
+- Convert using `/api/currency-accounts/convert/<id>/`
+
+### 💳 Deposit Management
+- Deposit into any account using `/deposit/<id>/`
+- Track deposit records per account
+
+---
+
+## 📡 API Endpoints
+
+### 🔐 User Management
+| Method | Endpoint                  | Description               |
+|--------|---------------------------|---------------------------|
+| POST   | `/api/register/`          | Register new user         |
+| POST   | `/api/login/`             | Login user                |
+| POST   | `/api/logout/`            | Logout user               |
+| POST   | `/api/forgot-password/` | Send password reset email |
+
+### 💰 Currency Accounts
+| Method | Endpoint                          | Description                     |
+|--------|-----------------------------------|---------------------------------|
+| GET    | `/api/currency-accounts/`         | List all accounts               |
+| POST   | `/api/currency-accounts/`         | Create new account              |
+| PUT    | `/api/currency-accounts/<id>/`    | Update account                  |
+| DELETE | `/api/currency-accounts/<id>/`    | Delete account                  |
+| GET    | `/api/currency-accounts/user/<id>/` | User’s accounts               |
+
+### 💱 Currency Conversion
+| Method | Endpoint                                | Description                   |
+|--------|-----------------------------------------|-------------------------------|
+| POST   | `/api/currency-accounts/convert/<id>/` | Convert currency              |
+| GET    | `/api/currency-accounts/convert/<id>/` | View user transaction history |
+
+### ➕ Deposits
+| Method | Endpoint                                | Description                       |
+|--------|-----------------------------------------|-----------------------------------|
+| POST   | `/api/currency-accounts/deposit/<id>/` | Deposit money                     |
+| GET    | `/api/currency-accounts/deposit/<id>/` | View deposit history              |
+
+### 📈 Account History
+| Method | Endpoint                                | Description                       |
+|--------|-----------------------------------------|-----------------------------------|
+| GET    | `/api/currency-accounts/history/<id>/` | View full account transaction log |
+
+---
+
+## 📝 Notes
+
+- **Default Currency Account**: PLN account is mandatory for all users.
+- **NBP API**: Ensures real-time exchange accuracy.
+- **Security**: JWT-based auth, password hashing, and email reset flows.
