@@ -57,7 +57,7 @@ Virtual Currency Exchange is a full-stack web application that allows users to:
     EMAIL_HOST=smtp.gmail.com
     EMAIL_PORT=587
     EMAIL_USE_TLS=True
-    DEFAULT_FROM_EMAIL=your_gmail_address@gmail.com
+    DEFAULT_FROM_EMAIL=your_email@gmail.com
 
     # PostgreSQL
     POSTGRES_DB=currencydb
@@ -92,7 +92,6 @@ This will:
 1. **Navigate to project root**
    ```bash
    cd 41155_40796_41160
-
 
 2. **Install dependencies**
    ```bash
