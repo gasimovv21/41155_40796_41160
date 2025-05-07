@@ -13,8 +13,8 @@ const config = {
         const res = await login(credentials);
         const data = await res.json();
 
-        console.log("🔐 Backend response status:", res.status);
-        console.log("🔐 Backend response body:", data);
+        // console.log("🔐 Backend response status:", res.status);
+        // console.log("🔐 Backend response body:", data);
 
         if (!res.ok) return null;
 
