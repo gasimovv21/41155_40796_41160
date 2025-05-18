@@ -4,7 +4,7 @@ from django.forms import ModelForm
 from .models import (
     User, UserCurrencyAccount, 
     Transaction, AccountHistory, 
-    DepositHistory
+    DepositHistory, CreditCard
 )
 
 
@@ -17,6 +17,12 @@ class UserForm(ModelForm):
 class UserCurrencyAccountInline(admin.TabularInline):
     model = UserCurrencyAccount
     extra = 1
+
+
+class CreditCardInline(admin.TabularInline):
+    model = CreditCard
+    extra = 1
+    max_num = 3
 
 
 class UserAdmin(BaseUserAdmin):
@@ -56,7 +62,7 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
 
-    inlines = [UserCurrencyAccountInline]
+    inlines = [UserCurrencyAccountInline, CreditCardInline]
 
 
 class UserCurrencyAccountAdmin(admin.ModelAdmin):
@@ -97,8 +103,20 @@ class DepositHistoryAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'user_currency_account__currency_code')
 
 
+class CreditCardAdmin(admin.ModelAdmin):
+    list_display = ('user', 'masked_card_number', 'expiration_date', 'created_at')
+    search_fields = ('user__username', 'card_number')
+    list_filter = ('expiration_date', 'created_at')
+    readonly_fields = ('created_at',)
+
+    def masked_card_number(self, obj):
+        return f"**** **** **** {obj.card_number[-4:]}"
+    masked_card_number.short_description = 'Card Number'
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(UserCurrencyAccount, UserCurrencyAccountAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(AccountHistory, AccountHistoryAdmin)
 admin.site.register(DepositHistory, DepositHistoryAdmin)
+admin.site.register(CreditCard, CreditCardAdmin)

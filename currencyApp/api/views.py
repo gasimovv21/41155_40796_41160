@@ -6,7 +6,7 @@ from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from django.conf import settings
 from django.utils.timezone import now
-from .models import User, Transaction, DepositHistory, AccountHistory
+from .models import User, Transaction, DepositHistory, AccountHistory, CreditCard
 from django.core.mail import send_mail
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
@@ -23,7 +23,8 @@ from .serializers import (
     DepositHistorySerializer,
     AccountHistorySerializer,
     ForgotPasswordRequestSerializer,
-    UserCurrencyAccountSerializer
+    UserCurrencyAccountSerializer,
+    CreditCardSerializer
 )
 from .utils import (
     generate_temporary_password,
@@ -239,3 +240,56 @@ def forgot_password(request):
         return Response({"message": "Temporary password sent to your email."})
     except User.DoesNotExist:
         return Response({"error": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def credit_card_list_create(request):
+    if request.method == 'GET':
+        cards = CreditCard.objects.filter(user=request.user)
+        serializer = CreditCardSerializer(cards, many=True)
+        return Response(serializer.data)
+
+    if request.method == 'POST':
+        if CreditCard.objects.filter(user=request.user).count() >= 3:
+            return Response({"error": "Maximum of 3 credit cards allowed."}, status=400)
+
+        serializer = CreditCardSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def credit_card_detail(request, pk):
+    try:
+        card = CreditCard.objects.get(pk=pk, user=request.user)
+    except CreditCard.DoesNotExist:
+        return Response({"error": "Card not found."}, status=404)
+
+    if request.method == 'GET':
+        return Response(CreditCardSerializer(card).data)
+
+    elif request.method == 'PUT':
+        serializer = CreditCardSerializer(card, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    elif request.method == 'DELETE':
+        card.delete()
+        return Response({"message": "Card deleted successfully."}, status=204)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_credit_cards(request, user_id):
+    if request.user.id != user_id and not request.user.is_staff:
+        return Response({"error": "Not authorized."}, status=403)
+
+    cards = CreditCard.objects.filter(user_id=user_id)
+    serializer = CreditCardSerializer(cards, many=True)
+    return Response(serializer.data)

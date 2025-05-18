@@ -5,6 +5,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.core.validators import RegexValidator
+from django.db.models import Q
 
 
 class UserManager(BaseUserManager):
@@ -149,3 +151,28 @@ class DepositHistory(models.Model):
 
     def __str__(self):
         return f"Deposit {self.deposit_id} by {self.user.username} to {self.user_currency_account.currency_code} account"
+
+
+class CreditCard(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="credit_cards")
+
+    card_number = models.CharField(
+        max_length=16,
+        validators=[RegexValidator(r'^\d{16}$', message="Card number must be 16 digits.")],
+        unique=True
+    )
+    expiration_date = models.DateField()
+    cvv = models.CharField(
+        max_length=4,
+        validators=[RegexValidator(r'^\d{3,4}$', message="CVV must be 3 or 4 digits.")]
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'card_number'], name='unique_card_per_user'),
+            models.CheckConstraint(check=Q(card_number__regex=r'^\d{16}$'), name="valid_card_number_format")
+        ]
+
+    def __str__(self):
+        return f"Card **** **** **** {self.card_number[-4:]} for {self.user.username}"

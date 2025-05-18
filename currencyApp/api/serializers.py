@@ -1,11 +1,14 @@
+from django.contrib.auth.hashers import make_password
+from datetime import datetime, date
 from rest_framework import serializers
 from .models import (
     User,
     UserCurrencyAccount,
     Transaction,
     DepositHistory,
-    AccountHistory)
-from django.contrib.auth.hashers import make_password
+    AccountHistory,
+    CreditCard)
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -130,3 +133,34 @@ class AccountHistorySerializer(serializers.ModelSerializer):
 
 class ForgotPasswordRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
+
+
+class CreditCardSerializer(serializers.ModelSerializer):
+    expiration_date = serializers.CharField()
+    created_at = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CreditCard
+        fields = ['id', 'user', 'card_number', 'expiration_date', 'cvv', 'created_at']
+        extra_kwargs = {
+            'cvv': {'write_only': True},
+            'card_number': {'write_only': False},
+        }
+
+    def validate_expiration_date(self, value):
+        try:
+            parsed = datetime.strptime(value.strip(), "%m/%y")
+            exp_date = parsed.date().replace(day=1)
+            if exp_date < date.today().replace(day=1):
+                raise serializers.ValidationError("Expiration date must be in the future.")
+            return exp_date
+        except ValueError:
+            raise serializers.ValidationError("Expiration date must be in format MM/YY (e.g. 12/26)")
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['expiration_date'] = instance.expiration_date.strftime('%m/%y')
+        return data
+
+    def get_created_at(self, obj):
+        return obj.created_at.strftime('%d-%m-%Y %H:%M:%S')
