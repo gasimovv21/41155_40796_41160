@@ -4,7 +4,7 @@ from django.forms import ModelForm
 from .models import (
     User, UserCurrencyAccount, 
     Transaction, AccountHistory, 
-    DepositHistory, CreditCard
+    DepositHistory, CreditCard, WithdrawHistory
 )
 
 
@@ -30,11 +30,11 @@ class UserAdmin(BaseUserAdmin):
 
     list_display = (
         'username', 'email', 'first_name', 'last_name',
-        'phone_number', 'is_active', 'is_staff',
+        'phone_number', 'secret_phrase', 'is_active', 'is_staff',
         'account_created_on', 'updated_on'
     )
     list_filter = ('is_staff', 'is_superuser', 'account_created_on', 'updated_on')
-    search_fields = ('username', 'email', 'first_name', 'last_name', 'phone_number')
+    search_fields = ('username', 'email', 'secret_phrase', 'first_name', 'last_name', 'phone_number')
     ordering = ('-account_created_on',)
 
     readonly_fields = ('account_created_on', 'updated_on', 'last_login')
@@ -44,7 +44,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('username', 'email', 'password')
         }),
         ('Personal Info', {
-            'fields': ('first_name', 'last_name', 'phone_number')
+            'fields': ('first_name', 'last_name', 'phone_number', 'secret_phrase',)
         }),
         ('Permissions', {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
@@ -114,9 +114,21 @@ class CreditCardAdmin(admin.ModelAdmin):
     masked_card_number.short_description = 'Card Number'
 
 
+class WithdrawHistoryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'masked_card', 'amount', 'currency', 'created_at')
+    list_filter = ('currency', 'created_at')
+    search_fields = ('user__username', 'credit_card__card_number')
+    readonly_fields = ('created_at',)
+
+    def masked_card(self, obj):
+        return f"****{obj.credit_card.card_number[-4:]}"
+    masked_card.short_description = 'Card'
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(UserCurrencyAccount, UserCurrencyAccountAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(AccountHistory, AccountHistoryAdmin)
 admin.site.register(DepositHistory, DepositHistoryAdmin)
 admin.site.register(CreditCard, CreditCardAdmin)
+admin.site.register(WithdrawHistory, WithdrawHistoryAdmin)

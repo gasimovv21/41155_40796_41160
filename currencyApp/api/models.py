@@ -40,6 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=15, unique=True, null=True, blank=True)
+    secret_phrase = models.CharField(max_length=255, null=True, blank=True)
     account_created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     last_login = models.DateTimeField(null=True, blank=True)
@@ -176,3 +177,14 @@ class CreditCard(models.Model):
 
     def __str__(self):
         return f"Card **** **** **** {self.card_number[-4:]} for {self.user.username}"
+
+
+class WithdrawHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='withdrawals')
+    credit_card = models.ForeignKey(CreditCard, on_delete=models.CASCADE, related_name='withdrawals')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default='PLN')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.amount} {self.currency} withdrawn by {self.user.username} to card ****{self.credit_card.card_number[-4:]}"

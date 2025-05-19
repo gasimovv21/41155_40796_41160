@@ -43,6 +43,14 @@ def updateUser(request, pk):
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
     data = request.data
+
+    input_phrase = data.get("secret_phrase")
+    if not input_phrase:
+        return Response({"error": "Secret phrase is required to update user info."}, status=400)
+
+    if user.secret_phrase.strip().lower() != input_phrase.strip().lower():
+        return Response({"error": "Incorrect secret phrase."}, status=400)
+
     if "password" in data:
         data["password"] = make_password(data["password"])
 
@@ -50,6 +58,7 @@ def updateUser(request, pk):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

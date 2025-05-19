@@ -6,12 +6,13 @@ from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from django.conf import settings
 from django.utils.timezone import now
-from .models import User, Transaction, DepositHistory, AccountHistory, CreditCard
+from .models import User, Transaction, DepositHistory, AccountHistory, CreditCard, UserCurrencyAccount, WithdrawHistory
 from django.core.mail import send_mail
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework_simplejwt.exceptions import InvalidToken
 from django.contrib.auth.hashers import make_password
+from decimal import Decimal
 
 
 from .serializers import (
@@ -24,7 +25,8 @@ from .serializers import (
     AccountHistorySerializer,
     ForgotPasswordRequestSerializer,
     UserCurrencyAccountSerializer,
-    CreditCardSerializer
+    CreditCardSerializer,
+    WithdrawHistorySerializer
 )
 from .utils import (
     generate_temporary_password,
@@ -292,4 +294,75 @@ def get_user_credit_cards(request, user_id):
 
     cards = CreditCard.objects.filter(user_id=user_id)
     serializer = CreditCardSerializer(cards, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def withdraw_from_pln(request, user_id):
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return Response({"error": "User not found."}, status=404)
+
+    if user != request.user:
+        return Response({"error": "You are not authorized to perform this action."}, status=403)
+
+    amount = request.data.get("amount")
+    card_id = request.data.get("card_id")
+
+    if not all([amount, card_id]):
+        return Response({"error": "Amount and card_id are required."}, status=400)
+
+    try:
+        amount = Decimal(str(amount))
+        if amount <= 0:
+            raise ValueError
+    except:
+        return Response({"error": "Amount must be a positive number."}, status=400)
+
+    try:
+        card = CreditCard.objects.get(id=card_id, user=user)
+    except CreditCard.DoesNotExist:
+        return Response({"error": "Credit card not found or does not belong to user."}, status=404)
+
+    try:
+        pln_account = UserCurrencyAccount.objects.get(user=user, currency_code='PLN')
+    except UserCurrencyAccount.DoesNotExist:
+        return Response({"error": "PLN account not found."}, status=404)
+
+    if pln_account.balance < amount:
+        return Response({"error": "Insufficient PLN balance."}, status=400)
+
+    pln_account.balance -= amount
+    pln_account.save()
+
+    WithdrawHistory.objects.create(
+        user=user,
+        credit_card=card,
+        amount=amount
+    )
+
+    AccountHistory.objects.create(
+        user=user,
+        currency='PLN',
+        amount=amount,
+        action='expense'
+    )
+
+    masked_number = card.card_number[-4:] if len(card.card_number) >= 4 else card.card_number
+
+    return Response({
+        "message": f"{amount} PLN successfully withdrawn to card ****{masked_number}"
+    }, status=200)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_withdraw_history(request, user_id):
+    if request.user.id != user_id:
+        return Response({"error": "Unauthorized access."}, status=403)
+
+    history = WithdrawHistory.objects.filter(user_id=user_id).order_by('-created_at')
+    serializer = WithdrawHistorySerializer(history, many=True)
     return Response(serializer.data)

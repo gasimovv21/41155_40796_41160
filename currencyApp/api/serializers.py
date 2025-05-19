@@ -7,7 +7,8 @@ from .models import (
     Transaction,
     DepositHistory,
     AccountHistory,
-    CreditCard)
+    CreditCard,
+    WithdrawHistory)
 
 
 
@@ -59,7 +60,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'phone_number',
-            'email')
+            'email',
+            'secret_phrase')
 
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])
@@ -161,6 +163,21 @@ class CreditCardSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data['expiration_date'] = instance.expiration_date.strftime('%m/%y')
         return data
+
+    def get_created_at(self, obj):
+        return obj.created_at.strftime('%d-%m-%Y %H:%M:%S')
+
+
+class WithdrawHistorySerializer(serializers.ModelSerializer):
+    card_number = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
+
+    class Meta:
+        model = WithdrawHistory
+        fields = ['id', 'amount', 'currency', 'card_number', 'created_at']
+
+    def get_card_number(self, obj):
+        return f"****{obj.credit_card.card_number[-4:]}"
 
     def get_created_at(self, obj):
         return obj.created_at.strftime('%d-%m-%Y %H:%M:%S')
