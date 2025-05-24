@@ -63,7 +63,6 @@ export const signUpPageAction = async (prevState, formData) => {
   try {
     FormSchemaPage.validateSync(fields, { abortEarly: false });
 
-    // Backend'e gönderilmeyecek alanları ayıklıyoruz
     const { confirmPassword, privacyPolicy, ...payload } = fields;
 
     const res = await register(payload);

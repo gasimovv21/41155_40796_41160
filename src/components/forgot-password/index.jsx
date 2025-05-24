@@ -3,16 +3,15 @@ import React, { useState } from "react";
 import Link from "next/link";
 import "./style.scss";
 import { handleEmailSend } from "@/actions/forgot-password-action";
+import { swalToast } from "@/helpers/swal";
 
 export const ForgotPasswordForm = () => {
   const [emailAdress, setEmailAdress] = useState("");
 
   const handleSendResetLink = async (e) => {
     e.preventDefault(); // prevent page reload
-    const result = await handleEmailSend(emailAdress);
-    if (result) {
-      console.log("Email send successful:", result);
-    }
+    await handleEmailSend(emailAdress);
+    swalToast("If there is an account related with this account. You will get an email.");
   };
 
   return (

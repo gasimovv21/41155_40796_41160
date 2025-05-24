@@ -1,3 +1,4 @@
+// index.jsx
 "use client";
 import React, { useEffect, useState } from "react";
 import { useActionState } from "react";
@@ -12,10 +13,34 @@ import { useRouter } from "next/navigation";
 import { swalToast } from "@/helpers/swal";
 import SignUpButton from "../common/buttons/sign-up";
 
+const TermsPopover = () => (
+  <div className="terms-popover">
+    <strong>Terms & Conditions</strong>
+    <p>
+      By using this app to convert PLN and other currencies, you agree that:
+      <br />• Rates are indicative and can change anytime.
+      <br />• We aren’t liable for any losses from use.
+      <br />• Your data is processed securely per privacy laws.
+    </p>
+  </div>
+);
+
+const InfoPopover = () => (
+  <div className="terms-popover">
+    <strong>Secret Key Info</strong>
+    <p>
+      This is a personal word you'll need to change your email in the future.
+      <br /> Keep it private and memorable.
+    </p>
+  </div>
+);
+
 const SignUpPageForm = () => {
   const [state, dispatch] = useActionState(signUpPageAction, initialResponse);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showSecretKeyInfo, setShowSecretKeyInfo] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -24,6 +49,8 @@ const SignUpPageForm = () => {
       setTimeout(() => {
         router.push(`/sign-in`);
       }, 1000);
+    } else if (state?.message) {
+      swalToast("Register failed.");
     }
   }, [state, router]);
 
@@ -84,9 +111,7 @@ const SignUpPageForm = () => {
                 name="first_name"
                 id="first_name"
               />
-              <div className="invalid-feedback">
-                {state?.errors?.first_name}
-              </div>
+              <div className="invalid-feedback">{state?.errors?.first_name}</div>
             </div>
           </div>
 
@@ -118,8 +143,30 @@ const SignUpPageForm = () => {
                 name="phone_number"
                 id="phone_number"
               />
-              <div className="invalid-feedback">
-                {state?.errors?.phone_number}
+              <div className="invalid-feedback">{state?.errors?.phone_number}</div>
+            </div>
+          </div>
+
+          {/* Secret Key */}
+          <div className="col-12 position-relative">
+            <div className="input-group position-relative">
+              <input
+                type="text"
+                placeholder="Secret Key"
+                className={`form-control rounded-3 ${
+                  state?.errors?.secret_key ? "is-invalid" : ""
+                }`}
+                name="secret_key"
+                id="secret_key"
+              />
+              <div className="invalid-feedback">{state?.errors?.secret_key}</div>
+              <div
+                className="info-icon"
+                onMouseEnter={() => setShowSecretKeyInfo(true)}
+                onMouseLeave={() => setShowSecretKeyInfo(false)}
+              >
+                <span className="info-circle" title="Secret key info">i</span>
+                {showSecretKeyInfo && <InfoPopover />}
               </div>
             </div>
           </div>
@@ -160,9 +207,7 @@ const SignUpPageForm = () => {
                 name="confirmPassword"
                 id="confirmPassword"
               />
-              <div className="invalid-feedback">
-                {state?.errors?.confirmPassword}
-              </div>
+              <div className="invalid-feedback">{state?.errors?.confirmPassword}</div>
               <Image
                 src={showConfirmPassword ? eyeDefault : eyeDisabled}
                 className="passwordEye"
@@ -174,8 +219,8 @@ const SignUpPageForm = () => {
             </div>
           </div>
 
-          {/* Privacy Policy */}
-          <div className="col-12">
+          {/* Privacy Policy with Terms Hover */}
+          <div className="col-12 position-relative">
             <div className="form-check">
               <input
                 className={`form-check-input ${
@@ -186,7 +231,16 @@ const SignUpPageForm = () => {
                 name="privacyPolicy"
               />
               <label className="form-check-label" htmlFor="privacyPolicy">
-                I understand and agree to Currency Web
+                I understand and agree to {" "}
+                <span
+                  className="text-primary text-decoration-underline terms-hover-box"
+                  onMouseEnter={() => setShowTerms(true)}
+                  onMouseLeave={() => setShowTerms(false)}
+                  style={{ cursor: "help" }}
+                >
+                  Terms & Conditions
+                  {showTerms && <TermsPopover />}
+                </span>
               </label>
               <div className="invalid-feedback">
                 {state?.errors?.privacyPolicy}

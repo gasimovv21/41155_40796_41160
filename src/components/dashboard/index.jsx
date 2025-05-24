@@ -11,6 +11,7 @@ import { signOut } from "next-auth/react";
 import { swalConfirm, swalToast } from "@/helpers/swal";
 import DepositHistoryModal from "../deposit-history";
 import ExchangeModal from "../exchange";
+import MyCardsModal from "../my-cards";
 import AddAccountModal from "../add-account";
 import EditProfileModal from "../edit-profile";
 import ExchangeHistoryModal from "../exchange-history";
@@ -23,9 +24,9 @@ const Dashboard = ({ session }) => {
   const [state, dispatch] = useActionState(getDashboardData, initialResponse);
   const [accounts, setAccounts] = useState([]);
   const [showDepositHistoryModal, setShowDepositHistoryModal] = useState(false);
-  const [showExchangeHistoryModal, setShowExchangeHistoryModal] =
-    useState(false);
+  const [showExchangeHistoryModal, setShowExchangeHistoryModal] = useState(false);
   const [showExchangeModal, setShowExchangeModal] = useState(false);
+  const [showMyCardsAccountModal, setShowMyCardsAccountModal] = useState(false);
   const [showAddAccountModal, setShowAddAccountModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -43,23 +44,33 @@ const Dashboard = ({ session }) => {
   }, [session, dispatch, reloadKey]);
 
   useEffect(() => {
-    if (Array.isArray(state?.data)) {
-      setAccounts(state.data);
+    let updatedAccounts = Array.isArray(state?.data) ? [...state.data] : [];
+  
+    const hasPLN = updatedAccounts.some((acc) => acc.currency_code === "PLN");
+  
+    if (!hasPLN) {
+      updatedAccounts.unshift({
+        account_id: "PLN_PLACEHOLDER",
+        account_number: "XXX-XXX-XXXX",
+        currency_code: "PLN",
+        balance: "0.00",
+        isPlaceholder: true,
+      });
     }
+  
+    setAccounts(updatedAccounts);
   }, [state]);
+  
 
   const handleLogout = async () => {
     const resp = await swalConfirm("Are you sure to logout?");
-
     if (!resp.isConfirmed) return;
-    const result = await handleLogOutAPI(
-      session?.accessToken,
-      session?.refreshToken
-    );
+
+    const result = await handleLogOutAPI(session?.accessToken, session?.refreshToken);
     if (result.error) {
       swalToast(result.error);
     } else {
-      swalToast(`You have successfully logged out. Redirecting to main page..`);
+      swalToast("You have successfully logged out. Redirecting to main page..");
       setTimeout(() => {
         signOut({ callbackUrl: "/" });
       }, 1500);
@@ -74,10 +85,7 @@ const Dashboard = ({ session }) => {
   };
 
   const handleDelete = async (account_id, account_currency) => {
-    const result = await handleDeleteSelectedAccount(
-      session?.accessToken,
-      account_id
-    );
+    const result = await handleDeleteSelectedAccount(session?.accessToken, account_id);
     if (result) {
       setReloadKey((prev) => prev + 1);
       setTimeout(() => {
@@ -93,36 +101,24 @@ const Dashboard = ({ session }) => {
           <div className="d-flex justify-content-between">
             <div>
               <h3 className="dashboard-title">Hello, {session?.user?.name}</h3>
-              <p className="dashboard-subtitle">
-                Welcome back to your dashboard
-              </p>
+              <p className="dashboard-subtitle">Welcome back to your dashboard</p>
             </div>
             <Dropdown>
               <Dropdown.Toggle className="header-dropdown-toggle" size="sm">
                 ⋮
               </Dropdown.Toggle>
               <Dropdown.Menu align="end">
-                <Dropdown.Item onClick={() => setShowAddAccountModal(true)}>
-                  Add Account
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => setShowEditModal(true)}>
-                  Edit Profile
-                </Dropdown.Item>
-                <Dropdown.Item
-                  onClick={() => setShowExchangeHistoryModal(true)}
-                >
-                  Exchange History
-                </Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowMyCardsAccountModal(true)}>My Cards</Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowAddAccountModal(true)}>Add Account</Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowEditModal(true)}>Edit Profile</Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowExchangeHistoryModal(true)}>Exchange History</Dropdown.Item>
                 <Dropdown.Divider />
-                <Dropdown.Item className="text-danger" onClick={handleLogout}>
-                  Logout
-                </Dropdown.Item>
+                <Dropdown.Item className="text-danger" onClick={handleLogout}>Logout</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </div>
         </div>
 
-        {/* Account Cards */}
         <Row className="gy-4">
           {accounts.map((account) => (
             <Col md={4} key={account.account_id}>
@@ -150,9 +146,7 @@ const Dashboard = ({ session }) => {
                       width={20}
                       height={20}
                       className="eye-icon"
-                      onClick={() =>
-                        toggleAccountVisibility(account.account_id)
-                      }
+                      onClick={() => toggleAccountVisibility(account.account_id)}
                       style={{ cursor: "pointer", marginLeft: "10px" }}
                     />
                   </div>
@@ -161,15 +155,15 @@ const Dashboard = ({ session }) => {
                   </Card.Text>
                   <div className="d-flex justify-content-end">
                     <Dropdown>
-                      <Dropdown.Toggle variant="outline-secondary" size="sm">
-                        Options
-                      </Dropdown.Toggle>
+                      <Dropdown.Toggle variant="outline-secondary" size="sm">Options</Dropdown.Toggle>
                       <Dropdown.Menu>
                         <Dropdown.Item
                           onClick={() => {
                             setSelectedCurrencyCode(account.currency_code);
                             setShowDepositModal(true);
                           }}
+                          disabled={account.isPlaceholder}
+                          title={account.isPlaceholder ? "Placeholder account" : ""}
                         >
                           Deposit Money
                         </Dropdown.Item>
@@ -178,20 +172,21 @@ const Dashboard = ({ session }) => {
                             setSelectedCurrencyCode(account.currency_code);
                             setShowDepositHistoryModal(true);
                           }}
+                          disabled={account.isPlaceholder}
+                          title={account.isPlaceholder ? "Placeholder account" : ""}
                         >
                           Deposit History
                         </Dropdown.Item>
                         <Dropdown.Item
                           className="text-danger"
                           onClick={() =>
-                            handleDelete(
-                              account.account_id,
-                              account.currency_code
-                            )
+                            handleDelete(account.account_id, account.currency_code)
                           }
-                          disabled={parseFloat(account.balance) > 0}
+                          disabled={parseFloat(account.balance) > 0 || account.isPlaceholder}
                           title={
-                            parseFloat(account.balance) > 0
+                            account.isPlaceholder
+                              ? "This is a default placeholder PLN account."
+                              : parseFloat(account.balance) > 0
                               ? "You can't delete an account with a non-zero balance."
                               : ""
                           }
@@ -223,6 +218,13 @@ const Dashboard = ({ session }) => {
           onExchangeSuccess={() => setReloadKey((prev) => prev + 1)}
         />
 
+        <MyCardsModal
+          show={showMyCardsAccountModal}
+          onClose={() => setShowMyCardsAccountModal(false)}
+          userId={session?.user?.id}
+          token={session?.accessToken}
+        />
+
         <AddAccountModal
           show={showAddAccountModal}
           onHide={() => setShowEditModal(false)}
@@ -240,6 +242,7 @@ const Dashboard = ({ session }) => {
           token={session?.accessToken}
           refreshToken={session?.refreshToken}
         />
+
         <ExchangeHistoryModal
           show={showExchangeHistoryModal}
           onClose={() => setShowExchangeHistoryModal(false)}
