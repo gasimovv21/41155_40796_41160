@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.core.validators import RegexValidator
 from django.db.models import Q
+from django.conf import settings
 
 
 class UserManager(BaseUserManager):
@@ -58,21 +59,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserCurrencyAccount(models.Model):
-    CURRENCY_CHOICES = [
-        ('USD', 'US Dollar'),
-        ('EUR', 'Euro'),
-        ('JPY', 'Japanese Yen'),
-        ('GBP', 'British Pound'),
-        ('AUD', 'Australian Dollar'),
-        ('CAD', 'Canadian Dollar'),
-        ('CHF', 'Swiss Franc'),
-        ('SEK', 'Swedish Krona'),
-        ('PLN', 'Polish Zloty'),  # Default
-    ]
-
     account_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='currency_accounts')
-    currency_code = models.CharField(max_length=3, choices=CURRENCY_CHOICES)
+    currency_code = models.CharField(max_length=3, choices=settings.CURRENCY_CHOICES)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -180,11 +169,13 @@ class CreditCard(models.Model):
 
 
 class WithdrawHistory(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='withdrawals')
-    credit_card = models.ForeignKey(CreditCard, on_delete=models.CASCADE, related_name='withdrawals')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="withdrawals")
+    credit_card = models.ForeignKey(CreditCard, on_delete=models.CASCADE, related_name="withdrawals")
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=3, default='PLN')
+    currency = models.CharField(max_length=3, choices=settings.CURRENCY_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.amount} {self.currency} withdrawn by {self.user.username} to card ****{self.credit_card.card_number[-4:]}"
+        masked = self.credit_card.card_number[-4:] if self.credit_card.card_number else '****'
+        return f"{self.amount} {self.currency} withdrawn to ****{masked} by {self.user.username}"
+

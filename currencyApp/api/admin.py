@@ -125,6 +125,7 @@ class WithdrawHistoryAdmin(admin.ModelAdmin):
     masked_card.short_description = 'Card'
 
 
+
 admin.site.register(User, UserAdmin)
 admin.site.register(UserCurrencyAccount, UserCurrencyAccountAdmin)
 admin.site.register(Transaction, TransactionAdmin)

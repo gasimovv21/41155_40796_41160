@@ -136,3 +136,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'api.User'
+
+CURRENCY_CHOICES = [
+        ('USD', 'US Dollar'),
+        ('EUR', 'Euro'),
+        ('JPY', 'Japanese Yen'),
+        ('GBP', 'British Pound'),
+        ('AUD', 'Australian Dollar'),
+        ('CAD', 'Canadian Dollar'),
+        ('CHF', 'Swiss Franc'),
+        ('SEK', 'Swedish Krona'),
+        ('PLN', 'Polish Zloty'),
+    ]

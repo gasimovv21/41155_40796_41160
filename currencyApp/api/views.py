@@ -299,20 +299,21 @@ def get_user_credit_cards(request, user_id):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def withdraw_from_pln(request, user_id):
+def withdraw_from_account(request, user_id):
     try:
         user = User.objects.get(pk=user_id)
     except User.DoesNotExist:
         return Response({"error": "User not found."}, status=404)
 
-    if user != request.user:
+    if request.user != user:
         return Response({"error": "You are not authorized to perform this action."}, status=403)
 
     amount = request.data.get("amount")
     card_id = request.data.get("card_id")
+    currency_code = request.data.get("currency")
 
-    if not all([amount, card_id]):
-        return Response({"error": "Amount and card_id are required."}, status=400)
+    if not all([amount, card_id, currency_code]):
+        return Response({"error": "Amount, card_id, and currency are required."}, status=400)
 
     try:
         amount = Decimal(str(amount))
@@ -327,33 +328,34 @@ def withdraw_from_pln(request, user_id):
         return Response({"error": "Credit card not found or does not belong to user."}, status=404)
 
     try:
-        pln_account = UserCurrencyAccount.objects.get(user=user, currency_code='PLN')
+        account = UserCurrencyAccount.objects.get(user=user, currency_code=currency_code.upper())
     except UserCurrencyAccount.DoesNotExist:
-        return Response({"error": "PLN account not found."}, status=404)
+        return Response({"error": f"{currency_code} account not found."}, status=404)
 
-    if pln_account.balance < amount:
-        return Response({"error": "Insufficient PLN balance."}, status=400)
+    if account.balance < amount:
+        return Response({"error": f"Insufficient {currency_code} balance."}, status=400)
 
-    pln_account.balance -= amount
-    pln_account.save()
+    account.balance -= amount
+    account.save()
 
     WithdrawHistory.objects.create(
         user=user,
         credit_card=card,
-        amount=amount
+        amount=amount,
+        currency=currency_code.upper()
     )
 
     AccountHistory.objects.create(
         user=user,
-        currency='PLN',
+        currency=currency_code.upper(),
         amount=amount,
         action='expense'
     )
 
-    masked_number = card.card_number[-4:] if len(card.card_number) >= 4 else card.card_number
+    masked = card.card_number[-4:] if len(card.card_number) >= 4 else card.card_number
 
     return Response({
-        "message": f"{amount} PLN successfully withdrawn to card ****{masked_number}"
+        "message": f"{amount} {currency_code.upper()} successfully withdrawn to card ****{masked}"
     }, status=200)
 
 

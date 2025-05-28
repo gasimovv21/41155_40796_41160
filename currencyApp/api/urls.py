@@ -5,7 +5,7 @@ from .views import (
     getCurrencyAccountsView, getCurrencyAccountView,
     getUserCurrencyAccountsView, convertCurrency,
     depositToAccount, getAccountHistory, credit_card_list_create,
-    credit_card_detail, get_user_credit_cards, withdraw_from_pln,
+    credit_card_detail, get_user_credit_cards, withdraw_from_account,
     get_withdraw_history
 )
 
@@ -23,7 +23,7 @@ urlpatterns = [
     path('currency-accounts/convert/<int:user_id>/', convertCurrency, name='convert-currency'),
     path('currency-accounts/deposit/<int:user_id>/', depositToAccount, name='deposit-to-account'),
     path('currency-accounts/history/<int:user_id>/', getAccountHistory, name='account-history'),
-    path('currency-accounts/withdraw/<int:user_id>/', withdraw_from_pln, name='withdraw'),
+    path('currency-accounts/withdraw/<int:user_id>/', withdraw_from_account, name='withdraw'),
     path('credit-card/', credit_card_list_create, name='credit-card-list'),
     path('credit-card/<int:pk>/', credit_card_detail, name='credit-card-detail'),
     path('credit-card/user/<int:user_id>/', get_user_credit_cards, name='credit-card-user'),
