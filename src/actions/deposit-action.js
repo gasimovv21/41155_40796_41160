@@ -12,12 +12,22 @@ export const handleDepositAction = async (userId, token, currencyCode, amount) =
     const responseBody = await response.text();
 
     if (!response.ok) {
-      throw new Error(`Deposit failed with status ${response.status}: ${responseBody}`);
+      try {
+        const parsed = JSON.parse(responseBody);
+        const firstError = Object.values(parsed)?.[0]?.[0];
+        return {
+          error:
+            firstError ||
+            parsed?.error ||
+            `Deposit failed with status ${response.status}`,
+        };
+      } catch {
+        return { error: `Deposit failed with status ${response.status}` };
+      }
     }
 
     return JSON.parse(responseBody);
   } catch (error) {
-    console.error("Deposit error:", error.message);
-    return null;
+    return { error: error.message };
   }
 };

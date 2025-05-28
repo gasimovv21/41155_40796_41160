@@ -49,13 +49,6 @@
   }
 }
 
-.card-number-display {
-  display: inline-block;
-  min-width: 180px;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
 .cards-modal.blurred .modal-content {
   filter: blur(2px) brightness(0.8);
   pointer-events: none;

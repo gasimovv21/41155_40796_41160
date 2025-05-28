@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, startTransition } from "react";
-import { Modal, Button, ListGroup } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import "./style.scss";
-import { getDepositHistoryData } from "@/actions/deposit-history-action"; // Your API action for deposit history
+import { getDepositHistoryData } from "@/actions/deposit-history-action";
 import { useActionState } from "react";
 import { initialResponse } from "@/helpers/formValidation";
 
@@ -42,7 +42,7 @@ const DepositHistoryModal = ({ show, onClose, currencyCode, userId, token }) => 
                   </span>
                 </div>
                 <div className="deposit-date text-muted small">
-                  Date: {new Date(item.created_at).toLocaleString()}
+                  Date: {item.created_at}
                 </div>
               </div>
             ))}

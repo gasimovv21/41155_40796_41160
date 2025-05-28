@@ -6,10 +6,11 @@ import {
   getCreditCardsData,
   handleDeleteSelectedCard,
 } from "@/actions/my-cards-action";
+import Image from "next/image";
 import { useActionState } from "react";
 import { initialResponse } from "@/helpers/formValidation";
-import AddCardModal from "./addCard";
-import { swalToast } from "@/helpers/swal";
+import AddCardModal from "../add-cards";
+import { swalConfirm, swalToast } from "@/helpers/swal";
 
 const MyCardsModal = ({ show, onClose, userId, token }) => {
   const [state, dispatch] = useActionState(getCreditCardsData, initialResponse);
@@ -46,6 +47,22 @@ const MyCardsModal = ({ show, onClose, userId, token }) => {
       : `XXXX-XXXX-XXXX-${parts[3] || "****"}`;
   };
 
+  const getCardTypeIcon = (cardNumber) => {
+    if (!cardNumber) return "/icons/cards/other.svg";
+
+    const cleanNumber = cardNumber.replace(/\s|-/g, "");
+
+    if (/^4[0-9]{12}(?:[0-9]{3})?$/.test(cleanNumber)) {
+      return "/icons/cards/visa.svg";
+    } else if (/^5[1-5][0-9]{14}$/.test(cleanNumber) || /^2[2-7][0-9]{14}$/.test(cleanNumber)) {
+      return "/icons/cards/master.svg";
+    } else if (/^(5018|5020|5038|5893|6304|6759|6761|6763)/.test(cleanNumber)) {
+      return "/icons/cards/maestro.svg";
+    }
+
+    return "/icons/cards/other.svg";
+  };
+
   const fetchedCards = state?.data || [];
   const cards = [fetchedCards[0] || null, fetchedCards[1] || null];
 
@@ -67,14 +84,18 @@ const MyCardsModal = ({ show, onClose, userId, token }) => {
 
     const isVisible = visibleCards[card.id];
     const cardDisplay = formatCardNumber(card.card_number, isVisible);
+    const cardIcon = getCardTypeIcon(card.card_number);
 
     const handleDelete = async (card_id, last_4_digit) => {
+      const resp = await swalConfirm(`Are you sure to remove card XXXX-XXXX-XXXX-${last_4_digit}?`);
+      if (!resp.isConfirmed) return;
+
       const result = await handleDeleteSelectedCard(token, card_id);
       if (result) {
         setReloadKey((prev) => prev + 1);
         setTimeout(() => {
           swalToast(
-            `Card ending in ${last_4_digit} has been deleted successfully.`
+            `The card with the last 4 digits ${last_4_digit} has been removed successfully.`
           );
         }, 800);
       }
@@ -84,17 +105,20 @@ const MyCardsModal = ({ show, onClose, userId, token }) => {
       <Card key={index} className="credit-card mb-3">
         <Card.Body className="d-flex justify-content-between align-items-center">
           <div>
-            <div className="fw-bold">Cardholder</div>
-            <div className="text-muted d-flex align-items-center gap-2">
-              {cardDisplay}
-              <img
+            <div className="fw-bold">Your Verified Card</div>
+              <div className="text-muted d-flex align-items-center gap-2">
+              <Image src={cardIcon} alt="Card type" width={32} height={20} />
+              <span className="card-number-display">{cardDisplay}</span>
+              <Image
                 src={
                   isVisible
                     ? "/icons/eye/State=Default.svg"
                     : "/icons/eye/State=Dissabled.svg"
                 }
                 alt="Toggle visibility"
-                style={{ cursor: "pointer", width: "20px", height: "20px" }}
+                width={20}
+                height={20}
+                style={{ cursor: "pointer" }}
                 onClick={() => toggleCardVisibility(card.id)}
               />
             </div>

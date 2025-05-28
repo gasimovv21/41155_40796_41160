@@ -16,6 +16,7 @@ import AddAccountModal from "../add-account";
 import EditProfileModal from "../edit-profile";
 import ExchangeHistoryModal from "../exchange-history";
 import DepositModal from "../deposit";
+import WithdrawModal from "../withdraw";
 import { Row, Col, Card, Button, Dropdown } from "react-bootstrap";
 import Image from "next/image";
 import "./style.scss";
@@ -23,13 +24,14 @@ import "./style.scss";
 const Dashboard = ({ session }) => {
   const [state, dispatch] = useActionState(getDashboardData, initialResponse);
   const [accounts, setAccounts] = useState([]);
-  const [showDepositHistoryModal, setShowDepositHistoryModal] = useState(false);
   const [showExchangeHistoryModal, setShowExchangeHistoryModal] = useState(false);
   const [showExchangeModal, setShowExchangeModal] = useState(false);
   const [showMyCardsAccountModal, setShowMyCardsAccountModal] = useState(false);
   const [showAddAccountModal, setShowAddAccountModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showDepositHistoryModal, setShowDepositHistoryModal] = useState(false);
   const [visibleAccounts, setVisibleAccounts] = useState({});
   const [selectedCurrencyCode, setSelectedCurrencyCode] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -145,7 +147,6 @@ const Dashboard = ({ session }) => {
                       alt="Toggle visibility"
                       width={20}
                       height={20}
-                      className="eye-icon"
                       onClick={() => toggleAccountVisibility(account.account_id)}
                       style={{ cursor: "pointer", marginLeft: "10px" }}
                     />
@@ -177,6 +178,17 @@ const Dashboard = ({ session }) => {
                         >
                           Deposit History
                         </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => {
+                            setSelectedCurrencyCode(account.currency_code);
+                            setShowWithdrawModal(true);
+                          }}
+                          disabled={account.isPlaceholder}
+                          title={account.isPlaceholder ? "Placeholder account" : ""}
+                        >
+                          Withdraw Money
+                        </Dropdown.Item>
+                        <Dropdown.Divider />
                         <Dropdown.Item
                           className="text-danger"
                           onClick={() =>
@@ -265,6 +277,15 @@ const Dashboard = ({ session }) => {
           userId={session?.user?.id}
           token={session?.accessToken}
           onDepositSuccess={() => setReloadKey((prev) => prev + 1)}
+        />
+
+        <WithdrawModal
+          show={showWithdrawModal}
+          onClose={() => setShowWithdrawModal(false)}
+          currencyCode={selectedCurrencyCode}
+          userId={session?.user?.id}
+          token={session?.accessToken}
+          onWithdrawSuccess={() => setReloadKey((prev) => prev + 1)}
         />
       </Card>
     </div>

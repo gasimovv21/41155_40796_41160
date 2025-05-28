@@ -119,15 +119,11 @@ const ExchangeModal = ({ show, onHide, userId, token, onExchangeSuccess }) => {
     } else {
       if (isBuying) {
         swalToast(
-          `You have successfully converted ${numericAmount2} ${from_currency} to ${numericAmount1.toFixed(
-            2
-          )}.. ${to_currency}.`
+          `You have successfully converted ${numericAmount2.toFixed(2)} ${from_currency} to ${numericAmount1.toFixed(2)} ${to_currency}.`
         );
       } else {
         swalToast(
-          `You have successfully converted ${numericAmount1} ${from_currency} to ${numericAmount2.toFixed(
-            2
-          )}.. ${to_currency}.`
+          `You have successfully converted ${numericAmount1.toFixed(2)} ${from_currency} to ${numericAmount2.toFixed(2)} ${to_currency}.`
         );
       }
       onExchangeSuccess?.();

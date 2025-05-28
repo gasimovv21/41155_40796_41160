@@ -3,13 +3,13 @@ import React, { useEffect, useState, startTransition } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 import "./style.scss";
 import { swalToast } from "@/helpers/swal";
-import { handleDepositAction } from "@/actions/deposit-action";
+import { handleWithdrawAction } from "@/actions/withdraw-action";
 import { getCreditCardsData } from "@/actions/my-cards-action";
 import { useActionState } from "react";
 import { initialResponse } from "@/helpers/formValidation";
 
-const DepositModal = ({ show, onClose, currencyCode, userId, token, onDepositSuccess }) => {
-  const [depositAmount, setDepositAmount] = useState("");
+const WithdrawModal = ({ show, onClose, currencyCode, userId, token, onWithdrawSuccess }) => {
+  const [withdrawAmount, setWithdrawAmount] = useState("");
   const [selectedCardId, setSelectedCardId] = useState("");
   const [state, dispatch] = useActionState(getCreditCardsData, initialResponse);
 
@@ -26,16 +26,16 @@ const DepositModal = ({ show, onClose, currencyCode, userId, token, onDepositSuc
 
   const handleInputChange = (e) => {
     const formattedValue = e.target.value.replace(",", ".");
-    setDepositAmount(formattedValue);
+    setWithdrawAmount(formattedValue);
   };
 
-  const handleDeposit = async () => {
-    const result = await handleDepositAction(userId, token, currencyCode, depositAmount);
+  const handleWithdraw = async () => {
+    const result = await handleWithdrawAction(userId, token, currencyCode, withdrawAmount, selectedCardId);
     if (result.error) {
-      swalToast(result.error);
+          swalToast(result.error);
     } else {
-      swalToast(`You have successfully added ${depositAmount} ${currencyCode} to your ${currencyCode} account.`);
-      onDepositSuccess?.();
+      swalToast(`You have successfully withdrawn ${withdrawAmount} ${currencyCode}.`);
+      onWithdrawSuccess?.();
       onClose();
     }
   };
@@ -49,19 +49,19 @@ const DepositModal = ({ show, onClose, currencyCode, userId, token, onDepositSuc
   const hasNoCards = fetchedCards.length === 0;
 
   return (
-    <Modal show={show} onHide={onClose} centered className="deposit-modal">
+    <Modal show={show} onHide={onClose} centered className="withdraw-modal">
       <Modal.Header closeButton>
-        <Modal.Title>Deposit Money</Modal.Title>
+        <Modal.Title>Withdraw Money</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
         <p className="text-muted text-center mb-4">
-          You are depositing into your <strong>{currencyCode}</strong> account.
+          You are withdrawing from your <strong>{currencyCode}</strong> account.
         </p>
 
         {hasNoCards ? (
           <Alert variant="warning" className="text-center">
-            You don’t have any saved cards. Please add a credit card to deposit money.
+            You don’t have any saved cards. Please add a credit card to withdraw money.
           </Alert>
         ) : (
           <>
@@ -80,25 +80,25 @@ const DepositModal = ({ show, onClose, currencyCode, userId, token, onDepositSuc
               </Form.Select>
             </Form.Group>
 
-            <Form.Group className="mb-3" controlId="depositAmount">
-              <Form.Label>Deposit Amount ({currencyCode})</Form.Label>
+            <Form.Group className="mb-3" controlId="withdrawAmount">
+              <Form.Label>Withdraw Amount ({currencyCode})</Form.Label>
               <Form.Control
                 type="number"
                 min="0"
                 step="any"
-                placeholder={`Enter deposit amount in ${currencyCode}`}
-                value={depositAmount}
+                placeholder={`Enter withdraw amount in ${currencyCode}`}
+                value={withdrawAmount}
                 onChange={handleInputChange}
                 disabled={!selectedCardId}
               />
             </Form.Group>
 
             <Button
-              className="deposit-button w-100"
-              onClick={handleDeposit}
-              disabled={!selectedCardId || !depositAmount}
+              className="withdraw-button w-100"
+              onClick={handleWithdraw}
+              disabled={!selectedCardId || !withdrawAmount}
             >
-              Deposit
+              Withdraw
             </Button>
           </>
         )}
@@ -107,4 +107,4 @@ const DepositModal = ({ show, onClose, currencyCode, userId, token, onDepositSuc
   );
 };
 
-export default DepositModal;
+export default WithdrawModal;

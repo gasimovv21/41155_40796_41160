@@ -12,9 +12,8 @@ export default function InfoArea() {
               Welcome to Currency Web
             </Card.Title>
             <Card.Text className="card-text">
-              Here you can track currency exchange rates in real time. Use the
-              selector to choose between PLN, USD, or EUR and visualize their
-              historical trends.
+              Track, deposit, and exchange currencies effortlessly.
+              Stay in control of your money with real-time data and secure card management — all in one place.
             </Card.Text>
           </Card.Body>
         </Card>
@@ -23,12 +22,13 @@ export default function InfoArea() {
           <Card.Body>
             <Card.Title className="card-title">Features</Card.Title>
             <Card.Text className="card-text">
-              ✓ Real-time chart updates
+              Add credit cards, view balances, deposit funds, and monitor your transaction history. Start now and take charge of your finances.
               <br />
               ✓ Clean and simple interface
               <br />
-              ✓ React + Chart.js + Bootstrap stack
-              <br />✓ Built with Next.js
+              ✓ Fast and secure transactions
+              <br />
+              ✓ Up-to-date market values
             </Card.Text>
           </Card.Body>
         </Card>

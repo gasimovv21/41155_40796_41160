@@ -93,11 +93,7 @@ const ChartArea = () => {
     const value = parseFloat(e.target.value);
     setLeftInput(e.target.value);
     if (!isNaN(value)) {
-      if (rateType === "BUY") {
-        setRightInput((value / currentRate).toFixed(2));
-      } else {
-        setRightInput((value * currentRate).toFixed(2));
-      }
+      setRightInput((value * currentRate).toFixed(2));
     } else {
       setRightInput("");
     }
@@ -107,11 +103,7 @@ const ChartArea = () => {
     const value = parseFloat(e.target.value);
     setRightInput(e.target.value);
     if (!isNaN(value)) {
-      if (rateType === "BUY") {
-        setLeftInput((value * currentRate).toFixed(2));
-      } else {
-        setLeftInput((value / currentRate).toFixed(2));
-      }
+      setLeftInput((value / currentRate).toFixed(2));
     } else {
       setLeftInput("");
     }

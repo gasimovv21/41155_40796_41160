@@ -8,10 +8,15 @@ import { register } from "@/services/sign-up-service";
 import * as Yup from "yup";
 import jwt from "jsonwebtoken";
 
+// Schema for the initial email + secret key step
 const FormSchemaMain = Yup.object({
   email: Yup.string().email("It must be email address").required("Required"),
+  secretKey: Yup.string()
+    .min(12, "Secret key must be at least 12 characters.")
+    .required("Secret key is required."),
 });
 
+// Schema for full sign-up
 const FormSchemaPage = Yup.object({
   username: Yup.string()
     .min(3, "Username must be at least 3 characters.")
@@ -39,14 +44,16 @@ const FormSchemaPage = Yup.object({
 
 export const signUpMainAction = async (prevState, formData) => {
   const fields = convertFormDataToJson(formData);
-  const secretKey = "7HN5dknVIpsFAfdqgk5KnAX6Jq2ekB3g";
+  const secretKey = fields.secretKey;
 
   try {
     FormSchemaMain.validateSync(fields, { abortEarly: false });
+
     const emailToken = jwt.sign({ email: fields.email }, secretKey, {
       expiresIn: "1h",
       algorithm: "HS512",
     });
+
     if (emailToken) return response(true, "", null, emailToken);
   } catch (err) {
     if (err instanceof Yup.ValidationError) {
@@ -56,7 +63,6 @@ export const signUpMainAction = async (prevState, formData) => {
   }
 };
 
-// Kullanıcı kaydı için action
 export const signUpPageAction = async (prevState, formData) => {
   const fields = convertFormDataToJson(formData);
 
