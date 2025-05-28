@@ -61,7 +61,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'last_name',
             'phone_number',
             'email',
-            'secret_phrase')
+            'secret_key')
 
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])

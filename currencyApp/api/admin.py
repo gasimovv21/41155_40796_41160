@@ -30,11 +30,11 @@ class UserAdmin(BaseUserAdmin):
 
     list_display = (
         'username', 'email', 'first_name', 'last_name',
-        'phone_number', 'secret_phrase', 'is_active', 'is_staff',
+        'phone_number', 'secret_key', 'is_active', 'is_staff',
         'account_created_on', 'updated_on'
     )
     list_filter = ('is_staff', 'is_superuser', 'account_created_on', 'updated_on')
-    search_fields = ('username', 'email', 'secret_phrase', 'first_name', 'last_name', 'phone_number')
+    search_fields = ('username', 'email', 'secret_key', 'first_name', 'last_name', 'phone_number')
     ordering = ('-account_created_on',)
 
     readonly_fields = ('account_created_on', 'updated_on', 'last_login')
@@ -44,7 +44,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('username', 'email', 'password')
         }),
         ('Personal Info', {
-            'fields': ('first_name', 'last_name', 'phone_number', 'secret_phrase',)
+            'fields': ('first_name', 'last_name', 'phone_number', 'secret_key',)
         }),
         ('Permissions', {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')

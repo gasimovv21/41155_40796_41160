@@ -40,7 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=15, unique=True, null=True, blank=True)
-    secret_phrase = models.CharField(max_length=255, null=True, blank=True)
+    secret_key = models.CharField(max_length=255, null=True, blank=True)
     account_created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     last_login = models.DateTimeField(null=True, blank=True)

@@ -44,11 +44,11 @@ def updateUser(request, pk):
 
     data = request.data
 
-    input_phrase = data.get("secret_phrase")
-    if not input_phrase:
+    input_secret_key = data.get("secret_key")
+    if not input_secret_key:
         return Response({"error": "Secret phrase is required to update user info."}, status=400)
 
-    if user.secret_phrase.strip().lower() != input_phrase.strip().lower():
+    if user.secret_key.strip().lower() != input_secret_key.strip().lower():
         return Response({"error": "Incorrect secret phrase."}, status=400)
 
     if "password" in data:
