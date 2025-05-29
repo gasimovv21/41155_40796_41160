@@ -147,8 +147,6 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
             />
           </Form.Group>
 
-          <hr />
-
           <Form.Group className="mb-4">
             <Form.Control
               name="newPassword"
@@ -166,13 +164,15 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
               placeholder="Confirm New Password"
             />
           </Form.Group>
+          
+          <hr />
 
           <Form.Group className="mb-4">
             <Form.Control
               name="secretKey"
               className="form-input"
               type="text"
-              placeholder="Enter your secret key to confirm"
+              placeholder="Enter your secret key to confirm changes"
               required
             />
           </Form.Group>

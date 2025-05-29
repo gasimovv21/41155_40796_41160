@@ -1,6 +1,5 @@
-// index.jsx
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, startTransition } from "react";
 import { useActionState } from "react";
 import { signUpPageAction } from "@/actions/signUpAction";
 import { initialResponse } from "@/helpers/formValidation";
@@ -41,34 +40,42 @@ const SignUpPageForm = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showSecretKeyInfo, setShowSecretKeyInfo] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const router = useRouter();
 
-useEffect(() => {
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+  useEffect(() => {
+    if (!submitted) return;
 
-  if (state?.success) {
-    swalToast(state.data.message, "success");
-    setTimeout(() => {
-      router.push(`/sign-in`);
-    }, 1000);
-  } else if (!state?.success) {
-    swalToast(capitalize(state.data?.message || "Unknown error"), "error");
+    const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
-    if (state.errors && typeof state.errors === "object") {
-      Object.entries(state.errors).forEach(([field, messages]) => {
-        if (Array.isArray(messages)) {
-          messages.forEach((msg) =>
-            swalToast(`${field}: ${capitalize(msg)}`, "error")
-          );
-        } else {
-          swalToast(`${field}: ${capitalize(messages)}`, "error");
-        }
-      });
+    if (state?.success) {
+      swalToast(state.data.message, "success");
+      setTimeout(() => {
+        router.push(`/sign-in`);
+      }, 200);
+    } else if (!state?.success) {
+      swalToast(capitalize(state.data?.message || "Unknown error"), "error");
+
+      if (state.errors && typeof state.errors === "object") {
+        Object.entries(state.errors).forEach(([field, messages]) => {
+          if (Array.isArray(messages)) {
+            messages.forEach((msg) =>
+              swalToast(`${field}: ${capitalize(msg)}`, "error")
+            );
+          } else {
+            swalToast(`${field}: ${capitalize(messages)}`, "error");
+          }
+        });
+      }
     }
-  }
-}, [state, router]);
+  }, [state, router, submitted]);
 
-
+  const handleSubmit = (formData) => {
+    setSubmitted(true);
+    startTransition(() => {
+      dispatch(formData);
+    });
+  };
 
   return (
     <div className="signup-page-form">
@@ -81,9 +88,8 @@ useEffect(() => {
         <div className="alert alert-danger">{state.message}</div>
       )}
 
-      <form action={dispatch} noValidate>
+      <form action={handleSubmit} noValidate>
         <div className="row">
-          {/* Username */}
           <div className="col-12">
             <div className="input-group">
               <input
@@ -99,7 +105,6 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Email */}
           <div className="col-12">
             <div className="input-group">
               <input
@@ -115,7 +120,6 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* First Name */}
           <div className="col-12 col-sm-6">
             <div className="input-group">
               <input
@@ -131,7 +135,6 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Last Name */}
           <div className="col-12 col-sm-6">
             <div className="input-group">
               <input
@@ -147,7 +150,6 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Phone Number */}
           <div className="col-12">
             <div className="input-group">
               <input
@@ -163,7 +165,6 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Secret Key */}
           <div className="col-12 position-relative">
             <div className="input-group position-relative">
               <input
@@ -187,7 +188,6 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Password */}
           <div className="col-12 col-sm-6">
             <div className="input-group password-group">
               <input
@@ -211,7 +211,6 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Confirm Password */}
           <div className="col-12 col-sm-6">
             <div className="input-group password-group">
               <input
@@ -235,7 +234,6 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Privacy Policy with Terms Hover */}
           <div className="col-12 position-relative">
             <div className="form-check">
               <input
@@ -247,7 +245,7 @@ useEffect(() => {
                 name="privacyPolicy"
               />
               <label className="form-check-label" htmlFor="privacyPolicy">
-                I understand and agree to {" "}
+                I understand and agree to{" "}
                 <span
                   className="text-primary text-decoration-underline terms-hover-box"
                   onMouseEnter={() => setShowTerms(true)}
