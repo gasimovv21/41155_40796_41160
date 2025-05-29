@@ -70,7 +70,7 @@ Virtual Currency Exchange is a full-stack web application that allows users to:
 - **Authentication:** JWT + secret key
 - **Containerization:** Docker, Docker Compose
 - **Testing:** Pytest
-- **API:** RESTful, Axios
+- **API:** RESTful, fetch()
 - **Live Rates:** NBP API
 
 ---
