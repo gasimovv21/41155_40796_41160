@@ -3,7 +3,7 @@
 ## 📌 Project Description
 Virtual Currency Exchange is a full-stack web application that allows users to:
 
-- Convert between 10+ currencies using live exchange rates.
+- Convert between 9 currencies using live exchange rates.
 - Manage multiple currency accounts and linked credit cards.
 - Deposit, withdraw (including to credit cards), and track full transaction history.
 - Register securely with a secret key, accept terms, and manage sessions with JWT.
