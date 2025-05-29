@@ -56,7 +56,7 @@ const ExchangeHistoryModal = ({ show, onClose, userId, token }) => {
                     </span>
                   </div>
                   <div className="text-muted small">
-                    Date: {new Date(item.created_at).toLocaleString()}
+                    Date: {item.created_at.toLocaleString()}
                   </div>
                 </div>
               );

@@ -74,10 +74,34 @@ export const signUpPageAction = async (prevState, formData) => {
     const res = await register(payload);
     const data = await res.json();
 
+    //console.log("🔍 Full backend response:", data);
+
     if (res.ok) {
-      return response(true, data, null, data);
+      return response(true, { message: data?.message || "Success" }, null, data);
     }
-    return response(false, data?.message, data?.validations, data);
+
+    // If the response is a Django-style error dict
+    const isValidationError =
+      data && typeof data === "object" && !Array.isArray(data);
+
+    if (isValidationError) {
+      console.log("🔴 Django field errors:");
+      Object.entries(data).forEach(([field, messages]) => {
+        if (Array.isArray(messages)) {
+          messages.forEach((msg) =>
+            console.log(`- ${field}: ${msg}`)
+          );
+        } else {
+          console.log(`- ${field}: ${messages}`);
+        }
+      });
+
+      return response(false, "Validation error", data, data);
+    }
+
+    // Fallback
+    console.log("🔴 Unknown error:", data);
+    return response(false, "Unknown error", null, data);
   } catch (err) {
     if (err instanceof Yup.ValidationError) {
       return getYupErrors(err.inner);

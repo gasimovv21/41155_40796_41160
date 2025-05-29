@@ -1,0 +1,54 @@
+@import "@/styles/variables";
+
+.withdraw-modal {
+  .modal-content {
+    border-radius: 12px;
+    border: 1px solid $color-border;
+    background-color: #f5f5f5;
+  }
+
+  .withdraw-title {
+    font-weight: 600;
+    color: $color1;
+    text-align: center;
+  }
+
+  .no-history-text {
+    color: gray;
+    font-size: 14px;
+    padding: 10px 0;
+  }
+
+  .close-btn {
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 6px 14px;
+    font-weight: 500;
+  }
+
+  .withdraw-list {
+    margin-top: 10px;
+
+    .withdraw-item {
+      background-color: #ffffff;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+
+      .withdraw-amount {
+        color: rgb(209, 0, 0); // red
+        font-weight: 500;
+        font-size: 18px;
+      }
+
+      .withdraw-date {
+        font-size: 13px;
+        color: #888;
+        margin-top: 4px;
+      }
+    }
+  }
+}

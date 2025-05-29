@@ -10,6 +10,7 @@ import { initialResponse } from "@/helpers/formValidation";
 import { signOut } from "next-auth/react";
 import { swalConfirm, swalToast } from "@/helpers/swal";
 import DepositHistoryModal from "../deposit-history";
+import WithdrawHistoryModal from "../withdraw-history";
 import ExchangeModal from "../exchange";
 import MyCardsModal from "../my-cards";
 import AddAccountModal from "../add-account";
@@ -32,6 +33,7 @@ const Dashboard = ({ session }) => {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showDepositHistoryModal, setShowDepositHistoryModal] = useState(false);
+  const [showWithdrawHistoryModal, setShowWithdrawHistoryModal] = useState(false);
   const [visibleAccounts, setVisibleAccounts] = useState({});
   const [selectedCurrencyCode, setSelectedCurrencyCode] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -188,6 +190,16 @@ const Dashboard = ({ session }) => {
                         >
                           Withdraw Money
                         </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => {
+                            setSelectedCurrencyCode(account.currency_code);
+                            setShowWithdrawHistoryModal(true);
+                          }}
+                          disabled={account.isPlaceholder}
+                          title={account.isPlaceholder ? "Placeholder account" : ""}
+                        >
+                          Withdraw History
+                        </Dropdown.Item>
                         <Dropdown.Divider />
                         <Dropdown.Item
                           className="text-danger"
@@ -286,6 +298,14 @@ const Dashboard = ({ session }) => {
           userId={session?.user?.id}
           token={session?.accessToken}
           onWithdrawSuccess={() => setReloadKey((prev) => prev + 1)}
+        />
+
+        <WithdrawHistoryModal
+          show={showWithdrawHistoryModal}
+          onClose={() => setShowWithdrawHistoryModal(false)}
+          currencyCode={selectedCurrencyCode}
+          userId={session?.user?.id}
+          token={session?.accessToken}
         />
       </Card>
     </div>

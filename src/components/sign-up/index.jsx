@@ -43,16 +43,32 @@ const SignUpPageForm = () => {
   const [showSecretKeyInfo, setShowSecretKeyInfo] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (state?.success) {
-      swalToast(state.data.message, "success");
-      setTimeout(() => {
-        router.push(`/sign-in`);
-      }, 1000);
-    } else if (state?.message) {
-      swalToast("Register failed.");
+useEffect(() => {
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+  if (state?.success) {
+    swalToast(state.data.message, "success");
+    setTimeout(() => {
+      router.push(`/sign-in`);
+    }, 1000);
+  } else if (!state?.success) {
+    swalToast(capitalize(state.data?.message || "Unknown error"), "error");
+
+    if (state.errors && typeof state.errors === "object") {
+      Object.entries(state.errors).forEach(([field, messages]) => {
+        if (Array.isArray(messages)) {
+          messages.forEach((msg) =>
+            swalToast(`${field}: ${capitalize(msg)}`, "error")
+          );
+        } else {
+          swalToast(`${field}: ${capitalize(messages)}`, "error");
+        }
+      });
     }
-  }, [state, router]);
+  }
+}, [state, router]);
+
+
 
   return (
     <div className="signup-page-form">

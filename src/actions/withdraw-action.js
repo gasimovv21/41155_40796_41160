@@ -3,7 +3,7 @@ import { withdraw } from "@/services/withdraw-service";
 
 export const handleWithdrawAction = async (userId, token, currencyCode, amount, card_id) => {
   const payload = {
-    user_currency_account_code: currencyCode,
+    currency: currencyCode,
     amount: amount,
     card_id: card_id
   };

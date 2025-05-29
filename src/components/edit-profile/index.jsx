@@ -59,6 +59,7 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
     const lastName = form["lastName"].value;
     const phone = form["phone"].value;
     const newPassword = form["newPassword"].value;
+    const secretKey = form["secretKey"].value;
 
     const result = await handleSendingSavedUserData(
       userId,
@@ -66,7 +67,8 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
       firstName,
       lastName,
       phone,
-      newPassword
+      newPassword,
+      secretKey
     );
 
     if (result?.data) {
@@ -81,10 +83,10 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
         }, 1500);
       }
     } else {
-      swalToast("Failed saving. There is at least a problem in one of inputs.");
+      swalToast("Failed saving. Either input is invalid or secret key is incorrect.");
     }
   };
-  
+
   return (
     <Modal
       show={show}
@@ -96,14 +98,14 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
       <Modal.Header closeButton>
         <Modal.Title className="fw-bold fs-4">Edit Profile</Modal.Title>
       </Modal.Header>
-  
+
       <Modal.Body>
         <div className="d-flex justify-content-end">
           <div className="account-created-on">
             Account Created On: {userData.account_created_on?.slice(0, 10) || "N/A"}
           </div>
         </div>
-  
+
         <div className="user-info mb-3">
           <div>
             <strong>Username:</strong> {userData.username || "N/A"}
@@ -112,7 +114,7 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
             <strong>Email:</strong> {userData.email || "N/A"}
           </div>
         </div>
-  
+
         <Form ref={formRef} onSubmit={handleSubmitConfirmation}>
           <Form.Group className="mb-4">
             <Form.Control
@@ -123,7 +125,7 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
               required
             />
           </Form.Group>
-  
+
           <Form.Group className="mb-4">
             <Form.Control
               name="lastName"
@@ -133,7 +135,7 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
               required
             />
           </Form.Group>
-  
+
           <Form.Group className="mb-4">
             <Form.Control
               name="phone"
@@ -144,9 +146,9 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
               required
             />
           </Form.Group>
-  
+
           <hr />
-  
+
           <Form.Group className="mb-4">
             <Form.Control
               name="newPassword"
@@ -155,8 +157,8 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
               placeholder="New Password (optional)"
             />
           </Form.Group>
-  
-          <Form.Group className="mb-5">
+
+          <Form.Group className="mb-4">
             <Form.Control
               name="confirmNewPassword"
               className="form-input"
@@ -164,7 +166,17 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
               placeholder="Confirm New Password"
             />
           </Form.Group>
-  
+
+          <Form.Group className="mb-4">
+            <Form.Control
+              name="secretKey"
+              className="form-input"
+              type="text"
+              placeholder="Enter your secret key to confirm"
+              required
+            />
+          </Form.Group>
+
           <Button
             type="submit"
             className="btn-primary-custom w-100 fw-semibold"
@@ -175,7 +187,7 @@ const EditProfileModal = ({ show, onHide, userId, token, refreshToken }) => {
         </Form>
       </Modal.Body>
     </Modal>
-  );  
+  );
 };
 
 export default EditProfileModal;

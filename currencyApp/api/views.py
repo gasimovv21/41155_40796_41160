@@ -362,9 +362,19 @@ def withdraw_from_account(request, user_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_withdraw_history(request, user_id):
-    if request.user.id != user_id:
-        return Response({"error": "Unauthorized access."}, status=403)
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return Response({"error": "User not found."}, status=404)
 
-    history = WithdrawHistory.objects.filter(user_id=user_id).order_by('-created_at')
-    serializer = WithdrawHistorySerializer(history, many=True)
+    if request.user != user:
+        return Response({"error": "Unauthorized"}, status=403)
+
+    currency_code = request.GET.get('currency_code')
+
+    queryset = WithdrawHistory.objects.filter(user=user)
+    if currency_code:
+        queryset = queryset.filter(currency=currency_code)
+
+    serializer = WithdrawHistorySerializer(queryset.order_by('-created_at'), many=True)
     return Response(serializer.data)
