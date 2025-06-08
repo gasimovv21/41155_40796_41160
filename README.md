@@ -11,8 +11,7 @@ Virtual Currency Exchange is a full-stack web application that allows users to:
 ## 👨‍💻 Team
 | Name                  | ID     | Role(s)                                                        |
 |-----------------------|--------|----------------------------------------------------------------|
-| Ahmet Artam           | 41155  | Frontend Developer                                             |
-| Recep Enes Karatekin  | 40796  | Frontend Developer                                             |
+| Ahmet Artam           | 41155  | Frontend Developer                                             |                         |
 | Eltun Gasimov         | 41160  | Backend Developer, Database Specialist, QA, Docs, PM          |
 
 ---
